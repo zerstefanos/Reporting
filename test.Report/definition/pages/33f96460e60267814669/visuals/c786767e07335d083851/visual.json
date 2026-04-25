@@ -1,0 +1,458 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "c786767e07335d083851",
+  "position": {
+    "x": 152.70516717325228,
+    "y": 96.291793313069917,
+    "z": 0,
+    "height": 280.1215805471125,
+    "width": 871.48936170212767,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "comments"
+                }
+              },
+              "queryRef": "employee.comments",
+              "nativeQueryRef": "comments"
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "employee"
+                            }
+                          },
+                          "Name": "Παραλλαγή",
+                          "Property": "date_of_birth"
+                        }
+                      },
+                      "Hierarchy": "Ιεραρχία ημερομηνιών"
+                    }
+                  },
+                  "Level": "Έτος"
+                }
+              },
+              "queryRef": "employee.date_of_birth.Παραλλαγή.Ιεραρχία ημερομηνιών.Έτος",
+              "nativeQueryRef": "date_of_birth Έτος"
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "employee"
+                            }
+                          },
+                          "Name": "Παραλλαγή",
+                          "Property": "date_of_birth"
+                        }
+                      },
+                      "Hierarchy": "Ιεραρχία ημερομηνιών"
+                    }
+                  },
+                  "Level": "Τρίμηνο"
+                }
+              },
+              "queryRef": "employee.date_of_birth.Παραλλαγή.Ιεραρχία ημερομηνιών.Τρίμηνο",
+              "nativeQueryRef": "date_of_birth Τρίμηνο"
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "employee"
+                            }
+                          },
+                          "Name": "Παραλλαγή",
+                          "Property": "date_of_birth"
+                        }
+                      },
+                      "Hierarchy": "Ιεραρχία ημερομηνιών"
+                    }
+                  },
+                  "Level": "Μήνας"
+                }
+              },
+              "queryRef": "employee.date_of_birth.Παραλλαγή.Ιεραρχία ημερομηνιών.Μήνας",
+              "nativeQueryRef": "date_of_birth Μήνας"
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "employee"
+                            }
+                          },
+                          "Name": "Παραλλαγή",
+                          "Property": "date_of_birth"
+                        }
+                      },
+                      "Hierarchy": "Ιεραρχία ημερομηνιών"
+                    }
+                  },
+                  "Level": "Ημέρα"
+                }
+              },
+              "queryRef": "employee.date_of_birth.Παραλλαγή.Ιεραρχία ημερομηνιών.Ημέρα",
+              "nativeQueryRef": "date_of_birth Ημέρα"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "father_name"
+                }
+              },
+              "queryRef": "employee.father_name",
+              "nativeQueryRef": "father_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "first_name"
+                }
+              },
+              "queryRef": "employee.first_name",
+              "nativeQueryRef": "first_name"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "employee"
+                        }
+                      },
+                      "Property": "id"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(employee.id)",
+              "nativeQueryRef": "Άθροισμα id"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "gender"
+                }
+              },
+              "queryRef": "employee.gender",
+              "nativeQueryRef": "gender"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "id_number"
+                }
+              },
+              "queryRef": "employee.id_number",
+              "nativeQueryRef": "id_number"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "employee"
+                        }
+                      },
+                      "Property": "is_active"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(employee.is_active)",
+              "nativeQueryRef": "Άθροισμα is_active"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "last_modified_by"
+                }
+              },
+              "queryRef": "employee.last_modified_by",
+              "nativeQueryRef": "last_modified_by"
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "employee"
+                            }
+                          },
+                          "Name": "Παραλλαγή",
+                          "Property": "last_modified_date"
+                        }
+                      },
+                      "Hierarchy": "Ιεραρχία ημερομηνιών"
+                    }
+                  },
+                  "Level": "Έτος"
+                }
+              },
+              "queryRef": "employee.last_modified_date.Παραλλαγή.Ιεραρχία ημερομηνιών.Έτος",
+              "nativeQueryRef": "last_modified_date Έτος"
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "employee"
+                            }
+                          },
+                          "Name": "Παραλλαγή",
+                          "Property": "last_modified_date"
+                        }
+                      },
+                      "Hierarchy": "Ιεραρχία ημερομηνιών"
+                    }
+                  },
+                  "Level": "Τρίμηνο"
+                }
+              },
+              "queryRef": "employee.last_modified_date.Παραλλαγή.Ιεραρχία ημερομηνιών.Τρίμηνο",
+              "nativeQueryRef": "last_modified_date Τρίμηνο"
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "employee"
+                            }
+                          },
+                          "Name": "Παραλλαγή",
+                          "Property": "last_modified_date"
+                        }
+                      },
+                      "Hierarchy": "Ιεραρχία ημερομηνιών"
+                    }
+                  },
+                  "Level": "Μήνας"
+                }
+              },
+              "queryRef": "employee.last_modified_date.Παραλλαγή.Ιεραρχία ημερομηνιών.Μήνας",
+              "nativeQueryRef": "last_modified_date Μήνας"
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "employee"
+                            }
+                          },
+                          "Name": "Παραλλαγή",
+                          "Property": "last_modified_date"
+                        }
+                      },
+                      "Hierarchy": "Ιεραρχία ημερομηνιών"
+                    }
+                  },
+                  "Level": "Ημέρα"
+                }
+              },
+              "queryRef": "employee.last_modified_date.Παραλλαγή.Ιεραρχία ημερομηνιών.Ημέρα",
+              "nativeQueryRef": "last_modified_date Ημέρα"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "last_name"
+                }
+              },
+              "queryRef": "employee.last_name",
+              "nativeQueryRef": "last_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "marital_status"
+                }
+              },
+              "queryRef": "employee.marital_status",
+              "nativeQueryRef": "marital_status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "middle_name"
+                }
+              },
+              "queryRef": "employee.middle_name",
+              "nativeQueryRef": "middle_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "mother_last_name"
+                }
+              },
+              "queryRef": "employee.mother_last_name",
+              "nativeQueryRef": "mother_last_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "mother_name"
+                }
+              },
+              "queryRef": "employee.mother_name",
+              "nativeQueryRef": "mother_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "nationality"
+                }
+              },
+              "queryRef": "employee.nationality",
+              "nativeQueryRef": "nationality"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "place_of_birth"
+                }
+              },
+              "queryRef": "employee.place_of_birth",
+              "nativeQueryRef": "place_of_birth"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "employee"
+                    }
+                  },
+                  "Property": "vat_number"
+                }
+              },
+              "queryRef": "employee.vat_number",
+              "nativeQueryRef": "vat_number"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
