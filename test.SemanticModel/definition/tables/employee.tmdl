@@ -200,6 +200,7 @@ table employee
 		annotation SummarizationSetBy = Automatic
 
 	column sz = 3
+	column gian = 3
 		formatString: 0
 		lineageTag: f7090837-cd03-44da-87db-d3ee95874b77
 		summarizeBy: sum
