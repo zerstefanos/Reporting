@@ -1,0 +1,111 @@
+table LocalDateTable_3d40cbb2-87b9-4eeb-b719-671a6da25782
+	isHidden
+	showAsVariationsOnly
+	lineageTag: ab0aa815-5f48-4cf3-8bf8-79201104e385
+
+	column Date
+		dataType: dateTime
+		isHidden
+		lineageTag: 9ce06e00-154f-4f50-97ec-c8515321d6c6
+		dataCategory: PaddedDateTableDates
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = User
+
+	column Έτος = YEAR([Date])
+		dataType: int64
+		isHidden
+		lineageTag: d77233ec-77ad-4aa5-a3c2-0b3e08b4448f
+		dataCategory: Years
+		summarizeBy: none
+
+		annotation SummarizationSetBy = User
+
+		annotation TemplateId = Year
+
+	column MonthNo = MONTH([Date])
+		dataType: int64
+		isHidden
+		lineageTag: 09c38fc9-4ee4-43ca-8db4-ce3f4a189936
+		dataCategory: MonthOfYear
+		summarizeBy: none
+
+		annotation SummarizationSetBy = User
+
+		annotation TemplateId = MonthNumber
+
+	column Μήνας = FORMAT([Date], "MMMM")
+		dataType: string
+		isHidden
+		lineageTag: bff30725-5f75-47ae-9bf1-d689ab91f898
+		dataCategory: Months
+		summarizeBy: none
+		sortByColumn: MonthNo
+
+		annotation SummarizationSetBy = User
+
+		annotation TemplateId = Month
+
+	column QuarterNo = INT(([MonthNo] + 2) / 3)
+		dataType: int64
+		isHidden
+		lineageTag: d4c3be39-9317-406b-98bc-8eb964c3b888
+		dataCategory: QuarterOfYear
+		summarizeBy: none
+
+		annotation SummarizationSetBy = User
+
+		annotation TemplateId = QuarterNumber
+
+	column Τρίμηνο = "Τρίμηνο " & [QuarterNo]
+		dataType: string
+		isHidden
+		lineageTag: 8129e386-ce69-4631-8ae3-b5c819a62d1f
+		dataCategory: Quarters
+		summarizeBy: none
+		sortByColumn: QuarterNo
+
+		annotation SummarizationSetBy = User
+
+		annotation TemplateId = Quarter
+
+	column Ημέρα = DAY([Date])
+		dataType: int64
+		isHidden
+		lineageTag: b97277b4-d565-4802-a628-5622dd4967f1
+		dataCategory: DayOfMonth
+		summarizeBy: none
+
+		annotation SummarizationSetBy = User
+
+		annotation TemplateId = Day
+
+	hierarchy 'Ιεραρχία ημερομηνιών'
+		lineageTag: 78ece53c-68bf-4663-9ac7-de8005323f3e
+
+		level Έτος
+			lineageTag: a2ad0292-266c-4875-b980-b070ad64c48d
+			column: Έτος
+
+		level Τρίμηνο
+			lineageTag: b0937c4e-1c02-421d-913a-13e1a400fdd0
+			column: Τρίμηνο
+
+		level Μήνας
+			lineageTag: 5aa7612c-4a0d-43c6-a39f-69109db15027
+			column: Μήνας
+
+		level Ημέρα
+			lineageTag: 6b6065eb-e976-43fe-9ad4-dc15d3a611e1
+			column: Ημέρα
+
+		annotation TemplateId = DateHierarchy
+
+	partition LocalDateTable_3d40cbb2-87b9-4eeb-b719-671a6da25782 = calculated
+		mode: import
+		source = Calendar(Date(Year(MIN('employee'[last_modified_date])), 1, 1), Date(Year(MAX('employee'[last_modified_date])), 12, 31))
+
+	annotation __PBI_LocalDateTable = true
+
