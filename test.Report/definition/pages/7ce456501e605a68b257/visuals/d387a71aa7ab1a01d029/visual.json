@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
-  "name": "6dc845696b20ce58392c",
+  "name": "d387a71aa7ab1a01d029",
   "position": {
-    "x": 152.70516717325228,
-    "y": 96.291793313069917,
-    "z": 0,
-    "height": 280.1215805471125,
-    "width": 871.48936170212767,
-    "tabOrder": 0
+    "x": 153.67888304368998,
+    "y": 383.8702312623235,
+    "z": 1,
+    "height": 279.89175294765664,
+    "width": 871.06498814551094,
+    "tabOrder": 1
   },
   "visual": {
     "visualType": "tableEx",
@@ -458,7 +458,7 @@
   "filterConfig": {
     "filters": [
       {
-        "name": "20c5c451ce5630ce85ed",
+        "name": "67fc0b321191206c9b81",
         "field": {
           "Column": {
             "Expression": {
@@ -472,7 +472,7 @@
         "type": "Categorical"
       },
       {
-        "name": "cc7fde70d5e100934ae5",
+        "name": "2a4d02cea776eea03e03",
         "field": {
           "HierarchyLevel": {
             "Expression": {
@@ -497,7 +497,7 @@
         "type": "Advanced"
       },
       {
-        "name": "d9df72a278a4cc841a6a",
+        "name": "70746bee81234556eb16",
         "field": {
           "HierarchyLevel": {
             "Expression": {
@@ -522,7 +522,7 @@
         "type": "Categorical"
       },
       {
-        "name": "5851122f3342575da7dd",
+        "name": "f0deb9148932ad196a50",
         "field": {
           "HierarchyLevel": {
             "Expression": {
@@ -547,7 +547,7 @@
         "type": "Categorical"
       },
       {
-        "name": "004e7d32c7d46a1918e0",
+        "name": "d0c1f237ab8eb8e1d593",
         "field": {
           "HierarchyLevel": {
             "Expression": {
@@ -572,7 +572,7 @@
         "type": "Advanced"
       },
       {
-        "name": "833244ba1e94069ac6c6",
+        "name": "9d819a8a002a29173989",
         "field": {
           "Column": {
             "Expression": {
@@ -586,7 +586,7 @@
         "type": "Categorical"
       },
       {
-        "name": "e1a8ad2086bc7d5868cb",
+        "name": "3849eeeece7438ea791b",
         "field": {
           "Column": {
             "Expression": {
@@ -600,7 +600,7 @@
         "type": "Categorical"
       },
       {
-        "name": "d8cd253897aa0007c00d",
+        "name": "d3bbacf5aad9a7945d00",
         "field": {
           "Aggregation": {
             "Expression": {
@@ -619,7 +619,7 @@
         "type": "Advanced"
       },
       {
-        "name": "a7f122e12a796308e0c1",
+        "name": "e1e53708b2ecdd02a0ce",
         "field": {
           "Column": {
             "Expression": {
@@ -633,7 +633,7 @@
         "type": "Categorical"
       },
       {
-        "name": "666fb585e85b471d2cb2",
+        "name": "90498d38ceda8099009a",
         "field": {
           "Column": {
             "Expression": {
@@ -647,7 +647,7 @@
         "type": "Categorical"
       },
       {
-        "name": "6b3230f216b3957e8703",
+        "name": "b902a8a52e098730c6b0",
         "field": {
           "Aggregation": {
             "Expression": {
@@ -666,7 +666,7 @@
         "type": "Advanced"
       },
       {
-        "name": "cca8bb564b3dbd19095e",
+        "name": "a8dc510ea8840612cbb3",
         "field": {
           "Column": {
             "Expression": {
@@ -680,7 +680,7 @@
         "type": "Categorical"
       },
       {
-        "name": "d49df0c7c0dc0a085b39",
+        "name": "168d997b9b271e320e7a",
         "field": {
           "HierarchyLevel": {
             "Expression": {
@@ -705,7 +705,7 @@
         "type": "Advanced"
       },
       {
-        "name": "2e3ebb62a7727cd24cc0",
+        "name": "5fe3e8cedd0878e55978",
         "field": {
           "HierarchyLevel": {
             "Expression": {
@@ -730,7 +730,7 @@
         "type": "Categorical"
       },
       {
-        "name": "2f2a05ba120d40406e06",
+        "name": "b56f767a70656513b645",
         "field": {
           "HierarchyLevel": {
             "Expression": {
@@ -755,7 +755,7 @@
         "type": "Categorical"
       },
       {
-        "name": "1dfbf5d1b747ea017958",
+        "name": "af4ea653aebd770aee97",
         "field": {
           "HierarchyLevel": {
             "Expression": {
@@ -780,7 +780,7 @@
         "type": "Advanced"
       },
       {
-        "name": "e5fd59e07a08bbd1629a",
+        "name": "4fce83f8c40e1c5306ce",
         "field": {
           "Column": {
             "Expression": {
@@ -794,7 +794,7 @@
         "type": "Categorical"
       },
       {
-        "name": "1d53892116b6da9e8642",
+        "name": "8abf4eade03dc7d1405c",
         "field": {
           "Column": {
             "Expression": {
@@ -808,7 +808,7 @@
         "type": "Categorical"
       },
       {
-        "name": "4e6a9ec5cb1c121d5708",
+        "name": "c42a736bcdd771c6a892",
         "field": {
           "Column": {
             "Expression": {
@@ -822,7 +822,7 @@
         "type": "Categorical"
       },
       {
-        "name": "51d8e4ed953a74355d46",
+        "name": "7c153eeeb1052ee09d95",
         "field": {
           "Column": {
             "Expression": {
@@ -836,7 +836,7 @@
         "type": "Categorical"
       },
       {
-        "name": "d160ae4ee0032b543846",
+        "name": "50fa8a42e266e3d9d036",
         "field": {
           "Column": {
             "Expression": {
@@ -850,7 +850,7 @@
         "type": "Categorical"
       },
       {
-        "name": "5637e05037400ec07423",
+        "name": "baf14ef12da652627b98",
         "field": {
           "Column": {
             "Expression": {
@@ -864,7 +864,7 @@
         "type": "Categorical"
       },
       {
-        "name": "ffd3c79e0ce0d0105460",
+        "name": "3335f0e3909dce1a5478",
         "field": {
           "Column": {
             "Expression": {
@@ -878,7 +878,7 @@
         "type": "Categorical"
       },
       {
-        "name": "e7501b576a8e49cc75e0",
+        "name": "c364c2bfe7d29ac04cd8",
         "field": {
           "Column": {
             "Expression": {
