@@ -1,0 +1,22 @@
+model Model
+	culture: el-GR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: el-GR
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["employee"]
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table employee
+ref table DateTableTemplate_e32b848a-0339-4d6f-bac4-34ed9fbd0e46
+ref table LocalDateTable_c3b885f9-c1ff-46eb-bf77-21f85c7a5f69
+ref table LocalDateTable_e29cdaf9-d7a0-4e97-aea8-71a3eaf94b2e
+ref table LocalDateTable_3d40cbb2-87b9-4eeb-b719-671a6da25782
+
+ref cultureInfo el-GR
+
