@@ -192,16 +192,9 @@ table employee
 
 		annotation SummarizationSetBy = Automatic
 
-	column Στήλη1 = 1
+	column Στήλη = 1
 		formatString: 0
-		lineageTag: b70106db-6851-4975-9681-3b71b05abdd9
-		summarizeBy: sum
-
-		annotation SummarizationSetBy = Automatic
-
-	column Στήλη2 = 2
-		formatString: 0
-		lineageTag: b6cbb23d-28ec-47dd-ab70-75667b72ddf4
+		lineageTag: 31cf762e-2129-4d75-a341-469f4a1ea39c
 		summarizeBy: sum
 
 		annotation SummarizationSetBy = Automatic
