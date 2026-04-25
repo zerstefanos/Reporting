@@ -199,9 +199,9 @@ table employee
 
 		annotation SummarizationSetBy = Automatic
 
-	column sz
-		type: calculated
-		lineageTag: 40cd6702-f835-41a7-a20e-dfff56191d5c
+	column sz = 3
+		formatString: 0
+		lineageTag: f7090837-cd03-44da-87db-d3ee95874b77
 		summarizeBy: sum
 
 		annotation SummarizationSetBy = Automatic
