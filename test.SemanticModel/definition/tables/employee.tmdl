@@ -192,6 +192,13 @@ table employee
 
 		annotation SummarizationSetBy = Automatic
 
+	column Στήλη = 1
+		formatString: 0
+		lineageTag: 31cf762e-2129-4d75-a341-469f4a1ea39c
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
 	partition employee = m
 		mode: import
 		source =
