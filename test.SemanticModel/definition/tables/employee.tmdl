@@ -199,6 +199,13 @@ table employee
 
 		annotation SummarizationSetBy = Automatic
 
+	column sz
+		type: calculated
+		lineageTag: 40cd6702-f835-41a7-a20e-dfff56191d5c
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
 	partition employee = m
 		mode: import
 		source =
