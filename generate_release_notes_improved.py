@@ -331,7 +331,6 @@ HTML_HEAD = """\
       --success: #15803d;
       --danger: #b91c1c;
       --warning: #b45309;
-      --data: #0f766e;
       --muted: #64748b;
       --bg: #f8fafc;
       --surface: #ffffff;
@@ -348,16 +347,8 @@ HTML_HEAD = """\
     h1 {{ margin: 0; font-size: 1.7rem; line-height: 1.2; }}
     header p {{ margin: 6px 0 0; color: var(--muted); font-size: 0.9rem; }}
     .stamp {{ text-align: right; color: var(--muted); font-size: 0.78rem; white-space: nowrap; }}
-    .summary-grid {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }}
-    .metric {{ background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }}
-    .metric strong {{ display: block; font-size: 1.4rem; line-height: 1.1; }}
-    .metric span {{ color: var(--muted); font-size: 0.8rem; }}
     .panel {{ background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; overflow: hidden; }}
     .panel h2 {{ margin: 0; padding: 12px 16px; font-size: 1rem; border-bottom: 1px solid var(--border); }}
-    .details {{ display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 16px; }}
-    .details h3 {{ margin: 0 0 8px; font-size: 0.82rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }}
-    .details ul {{ margin: 0; padding-left: 18px; }}
-    .details li {{ margin-bottom: 4px; }}
     table {{ width: 100%; border-collapse: collapse; font-size: 0.88rem; }}
     th {{ background: var(--surface-soft); color: var(--muted); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; text-align: left; }}
     th, td {{ padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }}
@@ -371,7 +362,7 @@ HTML_HEAD = """\
     .badge {{ display: inline-block; min-width: 88px; padding: 2px 8px; border-radius: 4px; font-size: 0.74rem; font-weight: 700; text-align: center; white-space: nowrap; }}
     .badge-feat {{ background: #dbeafe; color: var(--primary-dark); }}
     .badge-fix {{ background: #dcfce7; color: var(--success); }}
-    .badge-data {{ background: #ccfbf1; color: var(--data); }}
+    .badge-data {{ background: #ccfbf1; color: #0f766e; }}
     .badge-maint {{ background: #f1f5f9; color: #475569; }}
     .badge-removed {{ background: #fee2e2; color: var(--danger); }}
     .empty-row td {{ color: var(--muted); font-style: italic; }}
@@ -382,8 +373,6 @@ HTML_HEAD = """\
       .container {{ padding: 20px 10px 40px; }}
       header {{ display: block; }}
       .stamp {{ text-align: left; margin-top: 10px; }}
-      .summary-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
-      .details {{ grid-template-columns: 1fr; }}
       .panel {{ overflow-x: auto; }}
       table {{ min-width: 620px; }}
     }}
@@ -466,7 +455,7 @@ def render_toc(releases: list[Release]) -> str:
             f"<td>{html.escape(release.date)}</td>"
             f"<td>{count_by(release.entries, 'feat')}</td>"
             f"<td>{count_by(release.entries, 'fix')}</td>"
-            f"<td>{count_by(release.entries, 'data')}</td>"
+            f"<td>{count_by(release.entries, 'removed')}</td>"
             f"<td>{count_by(release.entries, 'maint')}</td>"
             "</tr>"
         )
@@ -474,7 +463,7 @@ def render_toc(releases: list[Release]) -> str:
         '  <section class="panel toc">\n'
         "    <h2>Release Index</h2>\n"
         "    <table>\n"
-        "      <thead><tr><th>Version</th><th>Date</th><th>Features</th><th>Fixes</th><th>Data</th><th>Maintenance</th></tr></thead>\n"
+        "      <thead><tr><th>Version</th><th>Date</th><th>Features</th><th>Fixes</th><th>Removed</th><th>Maintenance</th></tr></thead>\n"
         "      <tbody>\n"
         + "\n".join(rows)
         + "\n      </tbody>\n    </table>\n  </section>\n"
@@ -527,9 +516,9 @@ def build(
     out: Path,
     *,
     title: str = "Reporting Release Notes",
-    subtitle: str = "Power BI report release history and project snapshot",
+    subtitle: str = "Power BI report release history",
     ref_url_template: str | None = None,
-    include_project_summary: bool = True,
+    include_project_summary: bool = False,
 ) -> None:
     tags = get_tags(repo)
     releases: list[Release] = []
@@ -562,8 +551,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo", default=".", help="Path to the git repository. Default: current directory.")
     parser.add_argument("--out", default="release-notes.html", help="Output HTML file. Default: release-notes.html.")
     parser.add_argument("--title", default="Reporting Release Notes", help="Page title and header.")
-    parser.add_argument("--subtitle", default="Power BI report release history and project snapshot", help="Header subtitle.")
-    parser.add_argument("--no-project-summary", action="store_true", help="Skip the Power BI project snapshot section.")
+    parser.add_argument("--subtitle", default="Power BI report release history", help="Header subtitle.")
+    parser.add_argument("--include-project-summary", action="store_true", help="Include the Power BI project snapshot section.")
     parser.add_argument(
         "--ref-url-template",
         help="Optional URL template for refs. Use {ref} without # or {raw_ref} as written.",
@@ -587,7 +576,7 @@ def main(argv: list[str] | None = None) -> int:
             title=args.title,
             subtitle=args.subtitle,
             ref_url_template=args.ref_url_template,
-            include_project_summary=not args.no_project_summary,
+            include_project_summary=args.include_project_summary,
         )
     except RuntimeError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
