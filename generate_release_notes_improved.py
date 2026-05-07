@@ -140,7 +140,8 @@ def commits_between(repo: Path, from_ref: str | None, to_ref: str) -> list[str]:
     return [line.strip() for line in raw.splitlines() if line.strip()]
 
 
-# Commit parsing supports Conventional Commits and common GitHub merge subjects.
+# Commit parsing is based on the real change commits. Git Flow merge commits are
+# release bookkeeping, so they are skipped to avoid double-counting features.
 def parse_commit(msg: str) -> Entry | None:
     if GENERIC_SKIP_RE.match(msg):
         return None
@@ -156,22 +157,8 @@ def parse_commit(msg: str) -> Entry | None:
             desc = f"BREAKING: {desc}"
         return Entry(category, clean_desc(desc), extract_refs(desc))
 
-    pr_merge = MERGE_PR_RE.search(msg)
-    if pr_merge:
-        branch = pr_merge.group("branch")
-        category = category_from_branch(branch)
-        if category is None:
-            return None
-        ref = f"#{pr_merge.group('pr')}"
-        return Entry(category, branch_summary(branch), (ref,))
-
-    branch_merge = MERGE_BRANCH_RE.search(msg)
-    if branch_merge:
-        branch = branch_merge.group("branch")
-        category = category_from_branch(branch)
-        if category is None:
-            return None
-        return Entry(category, branch_summary(branch))
+    if MERGE_PR_RE.search(msg) or MERGE_BRANCH_RE.search(msg):
+        return None
 
     if msg.lower().startswith("fix "):
         return Entry("fix", clean_desc(msg[4:]))
