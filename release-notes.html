@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reporting Release Notes</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --success: #15803d;
+      --danger: #b91c1c;
+      --warning: #b45309;
+      --data: #0f766e;
+      --muted: #64748b;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-soft: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: 1060px; margin: 0 auto; padding: 32px 16px 56px; }
+    header { display: flex; justify-content: space-between; gap: 24px; align-items: flex-end; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 2px solid var(--border); }
+    h1 { margin: 0; font-size: 1.7rem; line-height: 1.2; }
+    header p { margin: 6px 0 0; color: var(--muted); font-size: 0.9rem; }
+    .stamp { text-align: right; color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+    .metric strong { display: block; font-size: 1.4rem; line-height: 1.1; }
+    .metric span { color: var(--muted); font-size: 0.8rem; }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+    .panel h2 { margin: 0; padding: 12px 16px; font-size: 1rem; border-bottom: 1px solid var(--border); }
+    .details { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 16px; }
+    .details h3 { margin: 0 0 8px; font-size: 0.82rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .details ul { margin: 0; padding-left: 18px; }
+    .details li { margin-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { background: var(--surface-soft); color: var(--muted); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; text-align: left; }
+    th, td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    .toc td:first-child { font-weight: 700; }
+    .release { scroll-margin-top: 16px; }
+    .release-title { display: flex; align-items: baseline; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .release-title h2 { margin: 0; padding: 0; border: 0; color: var(--primary-dark); }
+    .release-title span { color: var(--muted); font-size: 0.82rem; }
+    .release-title.upcoming { background: #fffbeb; }
+    .badge { display: inline-block; min-width: 88px; padding: 2px 8px; border-radius: 4px; font-size: 0.74rem; font-weight: 700; text-align: center; white-space: nowrap; }
+    .badge-feat { background: #dbeafe; color: var(--primary-dark); }
+    .badge-fix { background: #dcfce7; color: var(--success); }
+    .badge-data { background: #ccfbf1; color: var(--data); }
+    .badge-maint { background: #f1f5f9; color: #475569; }
+    .badge-removed { background: #fee2e2; color: var(--danger); }
+    .empty-row td { color: var(--muted); font-style: italic; }
+    .col-type { width: 132px; }
+    .col-ref { width: 110px; color: var(--muted); white-space: nowrap; }
+    footer { color: var(--muted); font-size: 0.78rem; text-align: right; margin-top: 24px; }
+    @media (max-width: 760px) {
+      .container { padding: 20px 10px 40px; }
+      header { display: block; }
+      .stamp { text-align: left; margin-top: 10px; }
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .details { grid-template-columns: 1fr; }
+      .panel { overflow-x: auto; }
+      table { min-width: 620px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>Reporting Release Notes</h1>
+      <p>Power BI report release history and project snapshot</p>
+    </div>
+    <div class="stamp">Generated 2026-05-07 20:27</div>
+  </header>
+
+  <section class="summary-grid">
+    <div class="metric"><strong>2</strong><span>Report pages</span></div>
+    <div class="metric"><strong>3</strong><span>Visuals</span></div>
+    <div class="metric"><strong>5</strong><span>Model tables</span></div>
+    <div class="metric"><strong>51</strong><span>Model columns</span></div>
+  </section>
+  <section class="panel">
+    <h2>Project Snapshot</h2>
+    <div class="details">
+      <div><h3>Pages</h3><ul><li>Main Page</li><li>Report_1</li></ul></div>
+      <div><h3>Visuals</h3><ul><li>actionButton: 1</li><li>tableEx: 2</li></ul></div>
+      <div><h3>Semantic Model</h3><ul><li>DateTableTemplate_e32b848a-0339-4d6f-bac4-34ed9fbd0e46: 7 columns</li><li>employee: 23 columns</li><li>LocalDateTable_3d40cbb2-87b9-4eeb-b719-671a6da25782: 7 columns</li><li>LocalDateTable_c3b885f9-c1ff-46eb-bf77-21f85c7a5f69: 7 columns</li><li>LocalDateTable_e29cdaf9-d7a0-4e97-aea8-71a3eaf94b2e: 7 columns</li></ul></div>
+      <div><h3>Data Sources</h3><ul><li>PostgreSQL.Database(&quot;localhost&quot;, &quot;postgres&quot;)</li></ul></div>
+    </div>
+  </section>
+  <section class="panel toc">
+    <h2>Release Index</h2>
+    <table>
+      <thead><tr><th>Version</th><th>Date</th><th>Features</th><th>Fixes</th><th>Data</th><th>Maintenance</th></tr></thead>
+      <tbody>
+      <tr><td><a href="#vNEXT">vNEXT</a></td><td>Unreleased</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+      <tr><td><a href="#v1-1">v1.1</a></td><td>2026-05-07</td><td>1</td><td>1</td><td>-</td><td>-</td></tr>
+      <tr><td><a href="#v1-0">v1.0</a></td><td>2026-05-07</td><td>10</td><td>1</td><td>1</td><td>3</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="panel release" id="vNEXT">
+    <div class="release-title upcoming"><h2>vNEXT</h2><span>Unreleased</span></div>
+    <table>
+      <thead><tr><th class="col-type">Category</th><th>Description</th><th class="col-ref">Ref</th></tr></thead>
+      <tbody>
+      <tr class="empty-row"><td colspan="3">No release changes recorded.</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="panel release" id="v1-1">
+    <div class="release-title"><h2>v1.1</h2><span>2026-05-07</span></div>
+    <table>
+      <thead><tr><th class="col-type">Category</th><th>Description</th><th class="col-ref">Ref</th></tr></thead>
+      <tbody>
+      <tr><td class="col-type"><span class="badge badge-feat">Feature</span></td><td>Data fix</td><td class="col-ref">#15</td></tr>
+      <tr><td class="col-type"><span class="badge badge-fix">Fix</span></td><td>data</td><td class="col-ref"></td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="panel release" id="v1-0">
+    <div class="release-title"><h2>v1.0</h2><span>2026-05-07</span></div>
+    <table>
+      <thead><tr><th class="col-type">Category</th><th>Description</th><th class="col-ref">Ref</th></tr></thead>
+      <tbody>
+      <tr><td class="col-type"><span class="badge badge-feat">Feature</span></td><td>Add column elisabet</td><td class="col-ref">#10</td></tr>
+      <tr><td class="col-type"><span class="badge badge-feat">Feature</span></td><td>Add column Elisabet</td><td class="col-ref"></td></tr>
+      <tr><td class="col-type"><span class="badge badge-feat">Feature</span></td><td>Add column Giannis</td><td class="col-ref"></td></tr>
+      <tr><td class="col-type"><span class="badge badge-feat">Feature</span></td><td>Add column stef</td><td class="col-ref">#9</td></tr>
+      <tr><td class="col-type"><span class="badge badge-feat">Feature</span></td><td>add giannis data</td><td class="col-ref"></td></tr>
+      <tr><td class="col-type"><span class="badge badge-feat">Feature</span></td><td>add graph</td><td class="col-ref"></td></tr>
+      <tr><td class="col-type"><span class="badge badge-feat">Feature</span></td><td>Add stef column</td><td class="col-ref"></td></tr>
+      <tr><td class="col-type"><span class="badge badge-feat">Feature</span></td><td>add sz data</td><td class="col-ref"></td></tr>
+      <tr><td class="col-type"><span class="badge badge-feat">Feature</span></td><td>Initial Commit to set up project</td><td class="col-ref"></td></tr>
+      <tr><td class="col-type"><span class="badge badge-feat">Feature</span></td><td>Setup project</td><td class="col-ref">#8</td></tr>
+      <tr><td class="col-type"><span class="badge badge-fix">Fix</span></td><td>column</td><td class="col-ref"></td></tr>
+      <tr><td class="col-type"><span class="badge badge-data">Data</span></td><td>data</td><td class="col-ref"></td></tr>
+      <tr><td class="col-type"><span class="badge badge-maint">Maintenance</span></td><td>Feat gf</td><td class="col-ref">#12</td></tr>
+      <tr><td class="col-type"><span class="badge badge-maint">Maintenance</span></td><td>Feat sz</td><td class="col-ref">#11</td></tr>
+      <tr><td class="col-type"><span class="badge badge-maint">Maintenance</span></td><td>Ft el</td><td class="col-ref">#13</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <footer>Generated by generate_release_notes_improved.py</footer>
+</div>
+</body>
+</html>
