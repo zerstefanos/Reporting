@@ -192,6 +192,13 @@ table employee
 
 		annotation SummarizationSetBy = Automatic
 
+	column elisabet
+		type: calculated
+		lineageTag: 7a90dc56-5669-4702-9428-a20dd2d5c86a
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
 	column gian
 		type: calculated
 		lineageTag: 1f12391c-5f4c-46cb-ab9a-15b2d534bb09
