@@ -1,0 +1,15 @@
+relationship bc566526-15e1-4018-bcc6-0480b02885c6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: employee.date_of_birth
+	toColumn: LocalDateTable_c3b885f9-c1ff-46eb-bf77-21f85c7a5f69.Date
+
+relationship 6690a205-7385-4a24-af42-c5d339e871b1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: employee.created_date
+	toColumn: LocalDateTable_e29cdaf9-d7a0-4e97-aea8-71a3eaf94b2e.Date
+
+relationship 07026c96-7fd1-44b2-82dc-d108c3af790c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: employee.last_modified_date
+	toColumn: LocalDateTable_3d40cbb2-87b9-4eeb-b719-671a6da25782.Date
+
