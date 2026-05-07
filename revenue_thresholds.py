@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 
-def classify_revenue(amount: float) -> str:
-    if amount >= 50_000:
+def classify_revenue(amount: float | None) -> str:
+    safe_amount = amount or 0
+    if safe_amount >= 50_000:
         return "strategic"
-    if amount >= 10_000:
+    if safe_amount >= 10_000:
         return "managed"
     return "standard"
