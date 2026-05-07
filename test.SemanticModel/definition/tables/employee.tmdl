@@ -192,15 +192,9 @@ table employee
 
 		annotation SummarizationSetBy = Automatic
 
-<<<<<<< HEAD
 	column giannis
 		type: calculated
 		lineageTag: 37dcae15-d91a-412b-96f8-b8716ba1833e
-=======
-	column stef
-		type: calculated
-		lineageTag: 73600257-8fa0-4d9b-b119-a41bed7d52e4
->>>>>>> origin/develop
 		summarizeBy: sum
 
 		annotation SummarizationSetBy = Automatic
