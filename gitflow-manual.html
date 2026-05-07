@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git Flow — Team Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #7d8590;
+    --main: #ff5c5c;
+    --develop: #3fb950;
+    --feature: #a371f7;
+    --release: #f0883e;
+    --hotfix: #ff8c8c;
+    --accent: #58a6ff;
+    --gold: #ffd700;
+    --tag-bg: #21262d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a1f2e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 40px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(88,166,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header .badge {
+    display: inline-block;
+    background: rgba(88,166,255,0.1);
+    border: 1px solid rgba(88,166,255,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+  header h1 span { color: var(--accent); }
+  header p {
+    color: var(--text-muted);
+    font-size: 16px;
+    max-width: 600px;
+    margin: 0 auto 30px;
+  }
+  .branch-pills {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  }
+  .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .pill.main    { background: rgba(255,92,92,0.15);  color: var(--main);    border: 1px solid rgba(255,92,92,0.4); }
+  .pill.develop { background: rgba(63,185,80,0.15);  color: var(--develop); border: 1px solid rgba(63,185,80,0.4); }
+  .pill.feature { background: rgba(163,113,247,0.15);color: var(--feature); border: 1px solid rgba(163,113,247,0.4); }
+  .pill.release { background: rgba(240,136,62,0.15); color: var(--release); border: 1px solid rgba(240,136,62,0.4); }
+  .pill.hotfix  { background: rgba(255,140,140,0.15);color: var(--hotfix);  border: 1px solid rgba(255,140,140,0.4); }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,17,23,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex; gap: 0; overflow-x: auto;
+  }
+  nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 16px 18px;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  nav a:hover { color: var(--text); border-bottom-color: var(--accent); }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+  section { padding: 70px 0; border-bottom: 1px solid var(--border); }
+  section:last-child { border-bottom: none; }
+
+  h2 {
+    font-size: 1.9rem; font-weight: 800;
+    margin-bottom: 10px; letter-spacing: -0.5px;
+  }
+  h2 .num {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent); font-size: 1rem;
+    margin-right: 8px; opacity: 0.6;
+  }
+  .section-sub {
+    color: var(--text-muted); margin-bottom: 40px; font-size: 15px;
+  }
+  h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .card:hover { border-color: #40464e; }
+
+  /* ── CODE ── */
+  .code-block {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+    position: relative;
+  }
+  .code-header {
+    background: var(--surface2);
+    padding: 8px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .code-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .code-header .dot.r { background: #ff5f57; }
+  .code-header .dot.y { background: #ffbd2e; }
+  .code-header .dot.g { background: #28c940; }
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    line-height: 1.8;
+  }
+  .cmd-branch { color: #79c0ff; }
+  .cmd-git    { color: #ff7b72; }
+  .cmd-arg    { color: #a371f7; }
+  .cmd-msg    { color: #a8daab; }
+  .cmd-comment { color: #484f58; font-style: italic; }
+  .cmd-tag    { color: var(--gold); }
+
+  /* ── GITFLOW DIAGRAM ── */
+  .flow-diagram {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 30px 20px;
+    overflow-x: auto;
+    margin: 20px 0;
+  }
+  .flow-diagram svg { display: block; min-width: 800px; }
+
+  /* ── BRANCH CARDS ── */
+  .branch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .branch-card {
+    border-radius: 10px; padding: 20px;
+    border: 1px solid;
+  }
+  .branch-card.main    { background: rgba(255,92,92,0.07);  border-color: rgba(255,92,92,0.3);  }
+  .branch-card.develop { background: rgba(63,185,80,0.07);  border-color: rgba(63,185,80,0.3);  }
+  .branch-card.feature { background: rgba(163,113,247,0.07);border-color: rgba(163,113,247,0.3);}
+  .branch-card.release { background: rgba(240,136,62,0.07); border-color: rgba(240,136,62,0.3); }
+  .branch-card.hotfix  { background: rgba(255,140,140,0.07);border-color: rgba(255,140,140,0.3);}
+  .branch-card h4 { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .branch-card.main h4    { color: var(--main); }
+  .branch-card.develop h4 { color: var(--develop); }
+  .branch-card.feature h4 { color: var(--feature); }
+  .branch-card.release h4 { color: var(--release); }
+  .branch-card.hotfix h4  { color: var(--hotfix); }
+  .branch-card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+  .branch-card .tag {
+    display: inline-block; margin-top: 10px;
+    font-size: 11px; font-family: 'JetBrains Mono', monospace;
+    padding: 2px 8px; border-radius: 4px;
+    background: rgba(255,255,255,0.06);
+    color: var(--text-muted);
+  }
+
+  /* ── SCENARIO TABS ── */
+  .tabs { display: flex; gap: 4px; margin-bottom: 0; flex-wrap: wrap; }
+  .tab-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'Sora', sans-serif;
+    font-size: 12px; font-weight: 600;
+    padding: 10px 18px;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    border-bottom: none;
+    transition: all 0.2s;
+  }
+  .tab-btn.active { background: var(--surface); color: var(--text); border-color: var(--border); border-bottom: 1px solid var(--surface); position: relative; z-index: 1; }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+  .tab-panel {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0 8px 8px 8px;
+    padding: 28px;
+  }
+  .tab-panel.active { display: block; }
+
+  /* ── STEPS ── */
+  .steps { list-style: none; }
+  .steps li {
+    display: flex; gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(48,54,61,0.5);
+  }
+  .steps li:last-child { border-bottom: none; }
+  .step-num {
+    min-width: 28px; height: 28px;
+    background: rgba(88,166,255,0.12);
+    border: 1px solid rgba(88,166,255,0.25);
+    color: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+  }
+  .step-content { flex: 1; }
+  .step-label { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .step-desc { font-size: 13px; color: var(--text-muted); }
+
+  /* ── WARNING / TIP / INFO ── */
+  .alert {
+    border-radius: 8px; padding: 14px 18px;
+    margin: 16px 0; font-size: 13px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .alert .icon { font-size: 18px; line-height: 1; }
+  .alert.warn { background: rgba(240,136,62,0.1); border: 1px solid rgba(240,136,62,0.3); }
+  .alert.tip  { background: rgba(63,185,80,0.1);  border: 1px solid rgba(63,185,80,0.3); }
+  .alert.info { background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.3); }
+  .alert.danger { background: rgba(255,92,92,0.1); border: 1px solid rgba(255,92,92,0.3); }
+  .alert strong { display: block; margin-bottom: 3px; }
+
+  /* ── COMMIT TABLE ── */
+  .commit-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .commit-table th {
+    text-align: left; padding: 10px 14px;
+    background: var(--surface2); color: var(--text-muted);
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .commit-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(48,54,61,0.4);
+    vertical-align: top;
+  }
+  .commit-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .commit-prefix {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; font-size: 13px;
+    padding: 2px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+  .allowed-badge {
+    display: inline-block; margin: 2px;
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    padding: 2px 7px; border-radius: 4px;
+  }
+  .ab-feature { background: rgba(163,113,247,0.2); color: #c2a5ff; }
+  .ab-release { background: rgba(240,136,62,0.2); color: #f0a060; }
+  .ab-hotfix  { background: rgba(255,92,92,0.2);  color: #ff9090; }
+
+  /* ── GOLD RULES ── */
+  .rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .rule-card {
+    background: rgba(255,215,0,0.05);
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 10px; padding: 22px;
+  }
+  .rule-num { font-family: 'JetBrains Mono', monospace; color: var(--gold); font-size: 2rem; font-weight: 800; opacity: 0.4; }
+  .rule-card h4 { color: var(--gold); margin-bottom: 6px; font-size: 15px; }
+  .rule-card p { font-size: 13px; color: var(--text-muted); }
+
+  /* ── PARALLEL DIAGRAM ── */
+  .parallel-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .dev-col {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px;
+  }
+  .dev-col h5 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; margin-bottom: 16px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .timeline-event {
+    display: flex; gap: 10px;
+    font-size: 12px; margin-bottom: 12px; align-items: flex-start;
+  }
+  .ev-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    margin-top: 4px; flex-shrink: 0;
+  }
+  .ev-green  { background: var(--develop); }
+  .ev-purple { background: var(--feature); }
+  .ev-blue   { background: var(--accent); }
+  .ev-orange { background: var(--release); }
+  .ev-red    { background: var(--main); }
+
+  /* ── ENV FLOW ── */
+  .env-flow { display: flex; gap: 0; align-items: stretch; margin: 20px 0; }
+  .env-box {
+    flex: 1; padding: 20px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .env-box:first-child { border-radius: 10px 0 0 10px; }
+  .env-box:last-child  { border-radius: 0 10px 10px 0; }
+  .env-box h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .env-box p  { font-size: 12px; color: var(--text-muted); }
+  .env-box.dev  { background: rgba(163,113,247,0.07); border-color: rgba(163,113,247,0.3); }
+  .env-box.uat  { background: rgba(240,136,62,0.07);  border-color: rgba(240,136,62,0.3); }
+  .env-box.prod { background: rgba(255,92,92,0.07);   border-color: rgba(255,92,92,0.3); }
+  .env-arrow {
+    display: flex; align-items: center;
+    color: var(--text-muted); font-size: 20px;
+    padding: 0 4px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center; padding: 40px;
+    color: var(--text-muted); font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+  footer strong { color: var(--gold); }
+
+  @media(max-width: 768px) {
+    .container { padding: 0 20px; }
+    header { padding: 40px 20px 30px; }
+    nav { padding: 0 20px; }
+    .parallel-grid { grid-template-columns: 1fr; }
+    .env-flow { flex-direction: column; }
+    .env-box:first-child { border-radius: 10px 10px 0 0; }
+    .env-box:last-child  { border-radius: 0 0 10px 10px; }
+    .env-arrow { transform: rotate(90deg); padding: 4px 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="badge">📖 Team Manual v1.0</div>
+  <h1>Git<span>Flow</span> <span data-i18n="h1-suffix">Manual</span></h1>
+  <p data-i18n="header-sub">The complete guide to Git branching — from the first feature to production.</p>
+  <div class="branch-pills">
+    <span class="pill main">main</span>
+    <span class="pill develop">develop</span>
+    <span class="pill feature">feature/*</span>
+    <span class="pill release">release/*</span>
+    <span class="pill hotfix">hotfix/*</span>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <a href="#intro" data-el="Εισαγωγή" data-en="Introduction">Εισαγωγή</a>
+  <a href="#branches" data-el="Branches" data-en="Branches">Branches</a>
+  <a href="#environments" data-el="Περιβάλλοντα" data-en="Environments">Περιβάλλοντα</a>
+  <a href="#diagram" data-el="Διάγραμμα" data-en="Diagram">Διάγραμμα</a>
+  <a href="#scenarios" data-el="Σενάρια" data-en="Scenarios">Σενάρια</a>
+  <a href="#parallel" data-el="Παράλληλη Ανάπτυξη" data-en="Parallel Development">Παράλληλη Ανάπτυξη</a>
+  <a href="#commits" data-el="Commit Rules" data-en="Commit Rules">Commit Rules</a>
+  <a href="#pullrequest" data-el="Pull Request" data-en="Pull Request">Pull Request</a>
+  <a href="#lifecycle" data-el="Κύκλος Ζωής" data-en="Lifecycle">Κύκλος Ζωής</a>
+  <a href="#rules" data-el="Κανόνες & Λάθη" data-en="Rules & Mistakes">Κανόνες & Λάθη</a>
+  <div style="margin-left:auto; display:flex; align-items:center; padding:0 10px;">
+    <button id="lang-toggle" onclick="toggleLang()" style="
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 3px;
+      gap: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+    ">
+      <span id="btn-el" style="padding: 4px 12px; border-radius: 16px; background: transparent; color: var(--text-muted); transition: all 0.2s;">GR</span>
+      <span id="btn-en" style="padding: 4px 12px; border-radius: 16px; background: var(--accent); color: #0d1117; transition: all 0.2s;">EN</span>
+    </button>
+  </div>
+</nav>
+
+<!-- 1. INTRO -->
+<section id="intro">
+  <div class="container">
+    <h2><span class="num">01</span> <span data-i18n="s1-title">Τι είναι το Git & Γιατί το Χρειαζόμαστε</span></h2>
+    <p class="section-sub" data-i18n="s1-sub">Η βάση — τι κάνει το Git και τι πρόβλημα λύνει στην ομαδική ανάπτυξη.</p>
+
+    <div class="card">
+      <h3 data-i18n="s1-card-title">🤔 Φαντάσου το εξής</h3>
+      <p data-i18n="s1-card-body">Έχεις ένα αρχείο <code style="color:var(--accent); background:rgba(88,166,255,0.1); padding:1px 6px; border-radius:3px;">sales_etl.sql</code> και δουλεύεις σε αυτό με 3 συναδέλφους ταυτόχρονα. Χωρίς Git, ο ένας κάνει override τον άλλο. Με Git, κάθε αλλαγή καταγράφεται, η ιστορία διατηρείται, και μπορείς να επιστρέψεις σε οποιοδήποτε σημείο στο παρελθόν.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-top:24px;">
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem; margin-bottom:12px;">📸</div>
+        <h3 data-i18n="s1-snap-title">Snapshot</h3>
+        <p style="font-size:13px; color:var(--text-muted);" data-i18n="s1-snap-body">Κάθε commit είναι μια "φωτογραφία" του κώδικα σε εκείνη τη στιγμή. Μπορείς πάντα να γυρίσεις πίσω.</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem; margin-bottom:12px;">🌿</div>
+        <h3 data-i18n="s1-branch-title">Branch (Κλάδος)</h3>
+        <p style="font-size:13px; color:var(--text-muted);" data-i18n="s1-branch-body">Δουλεύεις απομονωμένα. Ό,τι κάνεις σε ένα branch δεν επηρεάζει τους άλλους μέχρι να κάνεις merge.</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem; margin-bottom:12px;">🔀</div>
+        <h3 data-i18n="s1-merge-title">Merge</h3>
+        <p style="font-size:13px; color:var(--text-muted);" data-i18n="s1-merge-body">Ενώνεις δύο branches. Αν υπάρχουν conflicting αλλαγές, το Git σε ρωτάει τι να κρατήσει.</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem; margin-bottom:12px;">☁️</div>
+        <h3 data-i18n="s1-remote-title">Remote version control repository (π.χ. Azure DevOps, GitLab, GitHub)</h3>
+        <p style="font-size:13px; color:var(--text-muted);" data-i18n="s1-remote-body">Ο "κεντρικός server" που κρατάει τον κώδικα. Κάνεις push για να ανεβάσεις, pull για να κατεβάσεις.</p>
+      </div>
+    </div>
+
+    <div class="alert info" style="margin-top:24px;">
+      <div class="icon">💡</div>
+      <div data-i18n="s1-alert"><strong>Gitflow = Στρατηγική</strong> Το Gitflow δεν είναι εργαλείο — είναι μια συμφωνία για το πώς θα χρησιμοποιούμε το Git. Ορίζει ποια branches υπάρχουν, από πού ξεκινάνε και πού καταλήγουν.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. BRANCHES -->
+<section id="branches">
+  <div class="container">
+    <h2><span class="num">02</span> <span data-i18n="s2-title">Τα 5 Branches & Ο Ρόλος τους</span></h2>
+    <p class="section-sub" data-i18n="s2-sub">Κάθε branch έχει έναν συγκεκριμένο σκοπό. Δεν τα αγγίζουμε "όπως μας βολεύει".</p>
+
+    <div class="branch-grid">
+      <div class="branch-card main">
+        <h4>🔴 main</h4>
+        <p data-i18n="s2-main-body">Ο κώδικας που τρέχει <strong>LIVE</strong> στην παραγωγή. Ποτέ δεν αγγίζεται απευθείας. Μόνο δέχεται merges από release ή hotfix.</p>
+        <span class="tag">production-ready μόνο</span>
+      </div>
+      <div class="branch-card develop">
+        <h4>🟢 develop</h4>
+        <p data-i18n="s2-develop-body">Ο "κόμβος" ανάπτυξης. Εδώ μαζεύονται όλα τα features. Ποτέ δεν γράφουμε απευθείας — δεχόμαστε μόνο merges από features, releases, hotfixes.</p>
+        <span class="tag">integration branch</span>
+      </div>
+      <div class="branch-card feature">
+        <h4>🟣 feature/*</h4>
+        <p data-i18n="s2-feature-body">Εδώ γράφουμε κώδικα. Ξεκινά από το develop, τελειώνει στο develop. Κάθε task = ένα feature branch.</p> <span style="font-size:11px; color:var(--text-muted);">π.χ. <code style="font-size:11px">feature/sales-etl</code></span>
+        <span class="tag" data-i18n="s2-tag-feature">ξεκινά από: develop</span>
+      </div>
+      <div class="branch-card release">
+        <h4>🟠 release/*</h4>
+        <p data-i18n="s2-release-body">Προετοιμασία για deployment. Μόνο bugfixes, όχι νέα features. Πηγαίνει για UAT testing.</p> <span style="font-size:11px; color:var(--text-muted);">π.χ. <code style="font-size:11px">release/v1.0</code></span>
+        <span class="tag" data-i18n="s2-tag-release">ξεκινά από: develop</span>
+      </div>
+      <div class="branch-card hotfix">
+        <h4>🔴 hotfix/*</h4>
+        <p data-i18n="s2-hotfix-body">Επείγουσα διόρθωση στην παραγωγή. Ξεκινά από το main, γυρίζει στο main ΚΑΙ στο develop.</p> <span style="font-size:11px; color:var(--text-muted);">π.χ. <code style="font-size:11px">hotfix/fix-filter</code></span>
+        <span class="tag" data-i18n="s2-tag-hotfix">ξεκινά από: main</span>
+      </div>
+    </div>
+
+    <div class="alert info" style="margin-top:24px;">
+      <div class="icon">🔢</div>
+      <div>
+        <strong data-i18n="s2-version-title">Σημείωση: Τι σημαίνουν οι αριθμοί στα releases (v1.0, v1.1, v1.0.1…)</strong>
+        <br><br>
+        <span data-i18n="s2-version-body">Οι αριθμοί λειτουργούν ως απλό σύστημα αναφοράς για να ξέρει η ομάδα τι ανέβηκε και πότε. Η λογική είναι:</span>
+        <br><br>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:12px; line-height:2;">
+          <strong style="color:var(--release);">v1.0</strong> &nbsp;→ &nbsp;<span data-i18n="ver-v10">Πρώτο release στην παραγωγή</span><br>
+          <strong style="color:var(--release);">v1.1</strong> &nbsp;→ &nbsp;<span data-i18n="ver-v11">Νέο release με features (ο μεσαίος αριθμός αυξάνεται)</span><br>
+          <strong style="color:var(--release);">v1.2</strong> &nbsp;→ &nbsp;<span data-i18n="ver-v12">Επόμενο release με features</span><br>
+          <strong style="color:var(--hotfix);">v1.0.1</strong> → &nbsp;<span data-i18n="ver-v101">Hotfix του release v1.0 (ο τελευταίος αριθμός αυξάνεται)</span><br>
+          <strong style="color:var(--hotfix);">v1.1.1</strong> → &nbsp;<span data-i18n="ver-v111">Hotfix του release v1.1</span>
+        </span>
+        <br><br>
+        <span data-i18n="s2-version-foot">Σύνοψη: <em>ο μεσαίος αριθμός αυξάνεται για κάθε νέο release, ο τελευταίος για κάθε hotfix πάνω σε αυτό.</em></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. ENVIRONMENTS -->
+<section id="environments">
+  <div class="container">
+    <h2><span class="num">03</span> <span data-i18n="s3-title">Τα 3 Περιβάλλοντα: DEV → UAT → PROD</span></h2>
+    <p class="section-sub" data-i18n="s3-sub">Ο κώδικας δεν πηγαίνει ποτέ κατευθείαν στην παραγωγή. Περνά από 3 στάδια ελέγχου.</p>
+
+    <div class="env-flow">
+      <div class="env-box dev">
+        <div style="font-size:1.8rem; margin-bottom:8px;">👨‍💻</div>
+        <h4 style="color:var(--feature)">DEV</h4>
+        <p data-i18n="s3-dev-body">Το περιβάλλον του developer. Εδώ γράφεις και δοκιμάζεις. Αντιστοιχεί στο <span style="color:var(--feature); font-family:'JetBrains Mono',monospace; font-size:12px">feature/*</span> branch.</p>
+      </div>
+      <div class="env-arrow">→</div>
+      <div class="env-box uat">
+        <div style="font-size:1.8rem; margin-bottom:8px;">🧪</div>
+        <h4 style="color:var(--release)">UAT</h4>
+        <p data-i18n="s3-uat-body">User Acceptance Testing. Οι business users ελέγχουν ότι λειτουργεί σωστά. Αντιστοιχεί στο <span style="color:var(--release); font-family:'JetBrains Mono',monospace; font-size:12px">release/*</span> branch.</p>
+      </div>
+      <div class="env-arrow">→</div>
+      <div class="env-box prod">
+        <div style="font-size:1.8rem; margin-bottom:8px;">🚀</div>
+        <h4 style="color:var(--main)">PRODUCTION</h4>
+        <p data-i18n="s3-prod-body">Live περιβάλλον. Αγγίζεται μόνο μετά από έγκριση UAT. Αντιστοιχεί στο <span style="color:var(--main); font-family:'JetBrains Mono',monospace; font-size:12px">main</span> branch.</p>
+      </div>
+    </div>
+
+    <div class="alert tip" style="margin-top:16px;">
+      <div class="icon">✅</div>
+      <div data-i18n="s3-alert"><strong>Γιατί 3 περιβάλλοντα;</strong> Αν κάτι "σπάσει" στο DEV, δεν επηρεάζει τους χρήστες. Αν κάτι δεν αρέσει στο UAT, δεν φτάνει στην παραγωγή. Τα στρώματα ελέγχου προστατεύουν το LIVE σύστημα.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. MAIN DIAGRAM -->
+<section id="diagram">
+  <div class="container">
+    <h2><span class="num">04</span> <span data-i18n="s4-title">Το Πλήρες Διάγραμμα Gitflow</span></h2>
+    <p class="section-sub" data-i18n="s4-sub">Η οπτική αναπαράσταση όλων των branches και πώς συνδέονται μεταξύ τους.</p>
+
+    <div class="flow-diagram">
+      <svg viewBox="0 0 1000 420" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+        <!-- Background -->
+        <rect width="1000" height="420" fill="#0d1117"/>
+
+        <!-- Lane labels -->
+        <text x="14" y="66" fill="#3fb950" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700">develop</text>
+        <text x="14" y="146" fill="#a371f7" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700">feature</text>
+        <text x="14" y="226" fill="#f0883e" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700">release</text>
+        <text x="14" y="306" fill="#ff5c5c" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700">main</text>
+        <text x="14" y="386" fill="#ff8c8c" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700">hotfix</text>
+
+        <!-- Lane dividers -->
+        <line x1="80" y1="0" x2="80" y2="420" stroke="#21262d" stroke-width="1"/>
+        <line x1="0" y1="80" x2="1000" y2="80" stroke="#21262d" stroke-width="0.5"/>
+        <line x1="0" y1="160" x2="1000" y2="160" stroke="#21262d" stroke-width="0.5"/>
+        <line x1="0" y1="240" x2="1000" y2="240" stroke="#21262d" stroke-width="0.5"/>
+        <line x1="0" y1="320" x2="1000" y2="320" stroke="#21262d" stroke-width="0.5"/>
+
+        <!-- ===== DEVELOP branch line ===== -->
+        <line x1="90" y1="60" x2="960" y2="60" stroke="#3fb950" stroke-width="3"/>
+
+        <!-- ===== MAIN branch line ===== -->
+        <line x1="90" y1="300" x2="960" y2="300" stroke="#ff5c5c" stroke-width="3"/>
+
+        <!-- === SCENARIO 1: Feature === -->
+        <!-- develop to feature branch -->
+        <circle cx="150" cy="60" r="7" fill="#3fb950" stroke="#0d1117" stroke-width="2"/>
+        <line x1="150" y1="60" x2="220" y2="140" stroke="#a371f7" stroke-width="2" stroke-dasharray="5,3"/>
+        <!-- feature work -->
+        <circle cx="220" cy="140" r="6" fill="#a371f7"/>
+        <circle cx="290" cy="140" r="6" fill="#a371f7"/>
+        <circle cx="360" cy="140" r="6" fill="#a371f7"/>
+        <line x1="220" y1="140" x2="360" y2="140" stroke="#a371f7" stroke-width="2"/>
+        <!-- merge back to develop -->
+        <line x1="360" y1="140" x2="420" y2="60" stroke="#a371f7" stroke-width="2" stroke-dasharray="5,3"/>
+        <circle cx="420" cy="60" r="7" fill="#a371f7" stroke="#3fb950" stroke-width="2"/>
+
+        <!-- Labels Scenario 1 -->
+        <text x="280" y="125" fill="#a371f7" font-family="JetBrains Mono,monospace" font-size="9">feature/sales-task</text>
+        <text x="230" y="170" fill="#484f58" font-family="Sora,sans-serif" font-size="9">Scenario 1: Feature</text>
+
+        <!-- === SCENARIO 2+3: Release === -->
+        <circle cx="480" cy="60" r="7" fill="#3fb950" stroke="#0d1117" stroke-width="2"/>
+        <line x1="480" y1="60" x2="520" y2="220" stroke="#f0883e" stroke-width="2" stroke-dasharray="5,3"/>
+        <circle cx="520" cy="220" r="6" fill="#f0883e"/>
+        <circle cx="600" cy="220" r="6" fill="#f0883e"/>
+        <circle cx="680" cy="220" r="6" fill="#f0883e"/>
+        <line x1="520" y1="220" x2="680" y2="220" stroke="#f0883e" stroke-width="2"/>
+        <!-- bugfix on release -->
+        <text x="590" y="214" fill="#f0883e" font-family="JetBrains Mono,monospace" font-size="8">fix: UAT bug</text>
+
+        <!-- release to main -->
+        <line x1="680" y1="220" x2="720" y2="300" stroke="#f0883e" stroke-width="2" stroke-dasharray="5,3"/>
+        <circle cx="720" cy="300" r="8" fill="#ff5c5c" stroke="#f0883e" stroke-width="2"/>
+        <!-- tag v1.0 -->
+        <rect x="728" y="288" width="42" height="16" rx="4" fill="#21262d" stroke="#ffd700" stroke-width="1"/>
+        <text x="732" y="300" fill="#ffd700" font-family="JetBrains Mono,monospace" font-size="9" font-weight="700">v1.0</text>
+
+        <!-- release back-merge to develop - starts from merge node on main -->
+        <line x1="720" y1="300" x2="760" y2="60" stroke="#f0883e" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.6"/>
+        <circle cx="760" cy="60" r="6" fill="#f0883e" stroke="#3fb950" stroke-width="2"/>
+        <text x="740" y="135" fill="#484f58" font-family="Sora,sans-serif" font-size="8">back-merge</text>
+
+        <!-- Release label -->
+        <text x="530" y="248" fill="#f0883e" font-family="JetBrains Mono,monospace" font-size="9">release/v1.0</text>
+        <text x="510" y="258" fill="#484f58" font-family="Sora,sans-serif" font-size="9">Scenarios 2+3: Release & Deploy</text>
+
+        <!-- === SCENARIO 5: Hotfix === -->
+        <circle cx="820" cy="300" r="7" fill="#ff5c5c" stroke="#0d1117" stroke-width="2"/>
+        <line x1="820" y1="300" x2="840" y2="380" stroke="#ff8c8c" stroke-width="2" stroke-dasharray="5,3"/>
+        <circle cx="840" cy="380" r="6" fill="#ff8c8c"/>
+        <circle cx="900" cy="380" r="6" fill="#ff8c8c"/>
+        <line x1="840" y1="380" x2="900" y2="380" stroke="#ff8c8c" stroke-width="2"/>
+        <!-- hotfix to main -->
+        <line x1="900" y1="380" x2="930" y2="300" stroke="#ff8c8c" stroke-width="2" stroke-dasharray="5,3"/>
+        <circle cx="930" cy="300" r="8" fill="#ff5c5c" stroke="#ff8c8c" stroke-width="2"/>
+        <!-- tag v1.0.1 -->
+        <rect x="938" y="288" width="52" height="16" rx="4" fill="#21262d" stroke="#ffd700" stroke-width="1"/>
+        <text x="942" y="300" fill="#ffd700" font-family="JetBrains Mono,monospace" font-size="9" font-weight="700">v1.0.1</text>
+        <!-- hotfix back-merge to develop - connects from the fix commit node -->
+        <line x1="900" y1="380" x2="940" y2="60" stroke="#ff8c8c" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+        <circle cx="940" cy="60" r="6" fill="#ff8c8c" stroke="#3fb950" stroke-width="2"/>
+
+        <!-- Hotfix label -->
+        <text x="830" y="405" fill="#ff8c8c" font-family="JetBrains Mono,monospace" font-size="9">hotfix/fix-prod</text>
+        <text x="820" y="415" fill="#484f58" font-family="Sora,sans-serif" font-size="9">Scenario 5: Hotfix</text>
+
+        <!-- Legend -->
+        <rect x="83" y="385" width="640" height="26" rx="5" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+        <circle cx="102" cy="398" r="5" fill="#3fb950"/>
+        <text x="112" y="402" fill="#7d8590" font-size="10" font-family="Sora,sans-serif">develop commit</text>
+        <circle cx="200" cy="398" r="5" fill="#a371f7"/>
+        <text x="210" y="402" fill="#7d8590" font-size="10" font-family="Sora,sans-serif">feature commit</text>
+        <circle cx="298" cy="398" r="5" fill="#f0883e"/>
+        <text x="308" y="402" fill="#7d8590" font-size="10" font-family="Sora,sans-serif">release commit</text>
+        <circle cx="398" cy="398" r="5" fill="#ff5c5c"/>
+        <text x="408" y="402" fill="#7d8590" font-size="10" font-family="Sora,sans-serif">main/tag</text>
+        <line x1="480" y1="398" x2="498" y2="398" stroke="#7d8590" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="502" y="402" fill="#7d8590" font-size="10" font-family="Sora,sans-serif">back-merge</text>
+        <rect x="575" y="391" width="35" height="14" rx="3" fill="#21262d" stroke="#ffd700" stroke-width="1"/>
+        <text x="579" y="402" fill="#ffd700" font-family="JetBrains Mono,monospace" font-size="9" font-weight="700">v1.x</text>
+        <text x="614" y="402" fill="#7d8590" font-size="10" font-family="Sora,sans-serif">= git tag</text>
+      </svg>
+    </div>
+
+    <div class="alert info">
+      <div class="icon">📌</div>
+      <div data-i18n="s4-alert"><strong>Πώς να διαβάσεις το διάγραμμα</strong> Οι γραμμές αριστερά→δεξιά δείχνουν την πρόοδο του χρόνου. Κάθε κύκλος = ένα commit. Οι διακεκομμένες γραμμές = merges μεταξύ branches. Τα χρυσά tags (v1.0, v1.0.1) δείχνουν releases στην παραγωγή.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. SCENARIOS -->
+<section id="scenarios">
+  <div class="container">
+    <h2><span class="num">05</span> <span data-i18n="s5-title">Τα 5 Βασικά Σενάρια</span></h2>
+    <p class="section-sub" data-i18n="s5-sub">Βήμα-βήμα οδηγίες για κάθε περίπτωση που θα συναντήσεις στην καθημερινότητα.</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('s1')" data-i18n="stab1">📦 Σενάριο 1<br><small>Feature</small></button>
+      <button class="tab-btn" onclick="showTab('s2')" data-i18n="stab2">🧪 Σενάριο 2<br><small>UAT Release</small></button>
+      <button class="tab-btn" onclick="showTab('s3')" data-i18n="stab3">🚀 Σενάριο 3<br><small>Deployment</small></button>
+      <button class="tab-btn" onclick="showTab('s4')" data-i18n="stab4">⚔️ Σενάριο 4<br><small>Conflicts</small></button>
+      <button class="tab-btn" onclick="showTab('s5')" data-i18n="stab5">🔥 Σενάριο 5<br><small>Hotfix</small></button>
+    </div>
+
+    <!-- S1 -->
+    <div id="s1" class="tab-panel active">
+      <h3 style="color:var(--feature); margin-bottom:16px;" data-i18n="sc1-h3">📦 Καθημερινή Ανάπτυξη — Feature Branch</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;" data-i18n="sc1-desc">Όταν ξεκινάς μια νέα εργασία (π.χ. ένα νέο ETL Job ή SQL transformation).</p>
+
+      <!-- Mini diagram -->
+      <div class="flow-diagram" style="padding:20px;">
+        <svg viewBox="0 0 700 120" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:400px;">
+          <rect width="700" height="120" fill="#0d1117"/>
+          <text x="10" y="38" fill="#3fb950" font-family="JetBrains Mono,monospace" font-size="10">develop</text>
+          <text x="10" y="88" fill="#a371f7" font-family="JetBrains Mono,monospace" font-size="10">feature</text>
+          <line x1="70" y1="30" x2="650" y2="30" stroke="#3fb950" stroke-width="2.5"/>
+          <circle cx="100" cy="30" r="6" fill="#3fb950"/>
+          <line x1="100" y1="30" x2="160" y2="80" stroke="#a371f7" stroke-width="2" stroke-dasharray="4,3"/>
+          <circle cx="160" cy="80" r="5" fill="#a371f7"/>
+          <circle cx="280" cy="80" r="5" fill="#a371f7"/>
+          <circle cx="400" cy="80" r="5" fill="#a371f7"/>
+          <line x1="160" y1="80" x2="400" y2="80" stroke="#a371f7" stroke-width="2"/>
+          <text x="220" y="70" fill="#a371f7" font-family="JetBrains Mono,monospace" font-size="9">feat commits</text>
+          <line x1="400" y1="80" x2="480" y2="30" stroke="#a371f7" stroke-width="2" stroke-dasharray="4,3"/>
+          <circle cx="480" cy="30" r="7" fill="#a371f7" stroke="#3fb950" stroke-width="2"/>
+          <text x="490" y="20" fill="#a371f7" font-family="Sora,sans-serif" font-size="9">Pull Request → Merge</text>
+        </svg>
+      </div>
+
+      <ul class="steps" style="margin-top:20px;">
+        <li><div class="step-num">1</div><div class="step-content"><div class="step-label" data-i18n="sc1-step1l">Πήγαινε στο develop</div><div class="step-desc" data-i18n="sc1-step1d">Πάντα ξεκινάς από εκεί</div></div></li>
+        <li><div class="step-num">2</div><div class="step-content"><div class="step-label" data-i18n="sc1-step2l">Ενημέρωσε τον τοπικό κώδικα</div><div class="step-desc" data-i18n="sc1-step2d">Κατέβασε τις τελευταίες αλλαγές</div></div></li>
+        <li><div class="step-num">3</div><div class="step-content"><div class="step-label" data-i18n="sc1-step3l">Δημιούργησε το feature branch</div><div class="step-desc" data-i18n="sc1-step3d">Δουλεύεις απομονωμένος</div></div></li>
+        <li><div class="step-num">4</div><div class="step-content"><div class="step-label" data-i18n="sc1-step4l">Γράψε κώδικα & κάνε commits</div><div class="step-desc" data-i18n="sc1-step4d">Μικρά, συχνά, descriptive commits</div></div></li>
+        <li><div class="step-num">5</div><div class="step-content"><div class="step-label" data-i18n="sc1-step5l">Push & Pull Request</div><div class="step-desc" data-i18n="sc1-step5d">Ανέβασε και ζήτα code review</div></div></li>
+        <li><div class="step-num">6</div><div class="step-content"><div class="step-label" data-i18n="sc1-step6l">Merge & Καθαρισμός</div><div class="step-desc" data-i18n="sc1-step6d">Μετά την έγκριση, διέγραψε το feature branch</div></div></li>
+      </ul>
+
+      <div class="code-block" style="margin-top:20px;">
+        <div class="code-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> <span data-i18n="cb-header-s1">Terminal — Scenario 1: Feature</span></div>
+        <pre id="code-s1"><span class="cmd-comment"># Βήμα 1 & 2: Πήγαινε στο develop και ενημερώσου</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>
+<span class="cmd-git">git</span> pull <span class="cmd-arg">origin develop</span>
+
+<span class="cmd-comment"># Βήμα 3: Δημιούργησε το feature branch</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-arg">-b</span> <span class="cmd-branch">feature/sales-task</span>
+
+<span class="cmd-comment"># Βήμα 4: Δούλεψε... και κάνε commits</span>
+<span class="cmd-git">git</span> add .
+<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"feat: add sales transformation logic"</span>
+<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"fix: correct date filter in query"</span>
+
+<span class="cmd-comment"># Βήμα 5: Push στο remote</span>
+<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">feature/sales-task</span>
+<span class="cmd-comment"># → Πήγαινε στο GitHub/GitLab και άνοιξε Pull Request</span>
+
+<span class="cmd-comment"># Βήμα 6: Μετά την έγκριση, καθάρισε τοπικά</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>
+<span class="cmd-git">git</span> branch <span class="cmd-arg">-d</span> <span class="cmd-branch">feature/sales-task</span></pre>
+      </div>
+      <div class="alert tip">
+        <div class="icon">✅</div>
+        <div data-i18n="sc1-tip"><strong>Καλή πρακτική:</strong> Ένα feature branch = μία εργασία. Μην βάζεις άσχετα πράγματα στο ίδιο branch.</div>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div id="s2" class="tab-panel">
+      <h3 style="color:var(--release); margin-bottom:16px;" data-i18n="sc2-h3">🧪 Προετοιμασία Release & Bug στο UAT</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;" data-i18n="sc2-desc">Όταν μαζεύεις τα features για να τα πας για έλεγχο. Εδώ δεν υπάρχουν νέα features — μόνο bugfixes.</p>
+
+      <div class="flow-diagram" style="padding:20px;">
+        <svg viewBox="0 0 700 130" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:400px;">
+          <rect width="700" height="130" fill="#0d1117"/>
+          <text x="10" y="38" fill="#3fb950" font-family="JetBrains Mono,monospace" font-size="10">develop</text>
+          <text x="10" y="88" fill="#f0883e" font-family="JetBrains Mono,monospace" font-size="10">release</text>
+          <line x1="70" y1="30" x2="650" y2="30" stroke="#3fb950" stroke-width="2.5"/>
+          <circle cx="120" cy="30" r="6" fill="#3fb950"/>
+          <line x1="120" y1="30" x2="180" y2="80" stroke="#f0883e" stroke-width="2" stroke-dasharray="4,3"/>
+          <circle cx="180" cy="80" r="5" fill="#f0883e"/>
+          <text x="175" y="105" fill="#f0883e" font-family="Sora,sans-serif" font-size="9">Creation</text>
+          <circle cx="320" cy="80" r="5" fill="#f0883e"/>
+          <line x1="180" y1="80" x2="320" y2="80" stroke="#f0883e" stroke-width="2"/>
+          <text x="220" y="70" fill="#f0883e" font-family="JetBrains Mono,monospace" font-size="9">fix: UAT bug</text>
+          <circle cx="460" cy="80" r="5" fill="#f0883e"/>
+          <line x1="320" y1="80" x2="460" y2="80" stroke="#f0883e" stroke-width="2"/>
+          <text x="360" y="70" fill="#f0883e" font-family="JetBrains Mono,monospace" font-size="9">fix: another fix</text>
+          <text x="220" y="115" fill="#484f58" font-family="Sora,sans-serif" font-size="8">Bugfixes only here — NO new features!</text>
+          <rect x="500" y="60" width="120" height="30" rx="6" fill="rgba(240,136,62,0.1)" stroke="#f0883e" stroke-width="1"/>
+          <text x="516" y="78" fill="#f0883e" font-family="Sora,sans-serif" font-size="10">→ UAT Testing</text>
+        </svg>
+      </div>
+
+      <ul class="steps" style="margin-top:20px;">
+        <li><div class="step-num">1</div><div class="step-content"><div class="step-label" data-i18n="sc2-step1l">Πήγαινε στο develop & ενημερώσου</div><div class="step-desc" data-i18n="sc2-step1d">Κατέβασε όλα τα merged features</div></div></li>
+        <li><div class="step-num">2</div><div class="step-content"><div class="step-label" data-i18n="sc2-step2l">Δημιούργησε το release branch</div><div class="step-desc" data-i18n="sc2-step2d">Αυτό θα πάει για UAT testing</div></div></li>
+        <li><div class="step-num">3</div><div class="step-content"><div class="step-label" data-i18n="sc2-step3l">Βρέθηκε bug στο UAT; Διόρθωσε εδώ</div><div class="step-desc" data-i18n="sc2-step3d">Απευθείας στο release branch — ΜΟΝΟ bugfixes</div></div></li>
+        <li><div class="step-num">4</div><div class="step-content"><div class="step-label" data-i18n="sc2-step4l">Push & πέρνα για re-testing</div><div class="step-desc" data-i18n="sc2-step4d">Στείλε ξανά στο UAT για επαλήθευση</div></div></li>
+      </ul>
+
+      <div class="code-block" style="margin-top:20px;">
+        <div class="code-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> <span data-i18n="cb-header-s2">Terminal — Σενάριο 2: Release & UAT</span></div>
+        <pre id="code-s2"><span class="cmd-comment"># Βήμα 1: Ξεκίνα από το ενημερωμένο develop</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>
+<span class="cmd-git">git</span> pull <span class="cmd-arg">origin develop</span>
+
+<span class="cmd-comment"># Βήμα 2: Δημιούργησε release branch</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-arg">-b</span> <span class="cmd-branch">release/v1.0</span>
+<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">release/v1.0</span>
+<span class="cmd-comment"># → Deploy στο UAT περιβάλλον</span>
+
+<span class="cmd-comment"># Βήμα 3: Βρέθηκε bug στο UAT — διόρθωσε απευθείας</span>
+<span class="cmd-comment">#   (π.χ. φίλτρο λάθος στο SQL)</span>
+<span class="cmd-git">git</span> add .
+<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"fix: aggregation error found in UAT"</span>
+<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">release/v1.0</span>
+<span class="cmd-comment"># → Ξαναστείλε για UAT re-test</span></pre>
+      </div>
+      <div class="alert warn">
+        <div class="icon">⚠️</div>
+        <div data-i18n="sc2-warn"><strong>Κανόνας:</strong> Στο release branch ΔΕΝ βάζεις νέα features. Μόνο bugfixes, docs, και μικρές διορθώσεις. Αν θέλεις νέο feature, πηγαίνει στο επόμενο release.</div>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div id="s3" class="tab-panel">
+      <h3 style="color:var(--main); margin-bottom:16px;" data-i18n="sc3-h3">🚀 Ολοκλήρωση Release — Deployment στην Παραγωγή</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;" data-i18n="sc3-desc">Το UAT έδωσε "ΟΚ". Πάμε παραγωγή! Αυτό είναι το πιο κρίσιμο βήμα — ακολούθα με ακρίβεια.</p>
+
+      <div class="flow-diagram" style="padding:20px;">
+        <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:400px;">
+          <rect width="700" height="160" fill="#0d1117"/>
+          <text x="10" y="38" fill="#3fb950" font-family="JetBrains Mono,monospace" font-size="10">develop</text>
+          <text x="10" y="88" fill="#f0883e" font-family="JetBrains Mono,monospace" font-size="10">release</text>
+          <text x="10" y="138" fill="#ff5c5c" font-family="JetBrains Mono,monospace" font-size="10">main</text>
+
+          <line x1="70" y1="30" x2="650" y2="30" stroke="#3fb950" stroke-width="2.5"/>
+          <line x1="70" y1="130" x2="650" y2="130" stroke="#ff5c5c" stroke-width="2.5"/>
+
+          <circle cx="120" cy="80" r="5" fill="#f0883e"/>
+          <circle cx="280" cy="80" r="5" fill="#f0883e"/>
+          <line x1="120" y1="80" x2="280" y2="80" stroke="#f0883e" stroke-width="2"/>
+          <text x="150" y="68" fill="#f0883e" font-family="JetBrains Mono,monospace" font-size="9">release/v1.0 (UAT OK ✓)</text>
+
+          <!-- release to main -->
+          <line x1="280" y1="80" x2="340" y2="130" stroke="#f0883e" stroke-width="2" stroke-dasharray="4,3"/>
+          <circle cx="340" cy="130" r="8" fill="#ff5c5c" stroke="#f0883e" stroke-width="2"/>
+          <rect x="350" y="120" width="40" height="16" rx="4" fill="#21262d" stroke="#ffd700" stroke-width="1"/>
+          <text x="354" y="132" fill="#ffd700" font-family="JetBrains Mono,monospace" font-size="9" font-weight="700">v1.0</text>
+          <text x="340" y="152" fill="#ff5c5c" font-family="Sora,sans-serif" font-size="9">1. Merge → main</text>
+
+          <!-- release back to develop - starts from main merge node -->
+          <line x1="340" y1="130" x2="480" y2="30" stroke="#f0883e" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.7"/>
+          <circle cx="480" cy="30" r="6" fill="#f0883e" stroke="#3fb950" stroke-width="2"/>
+          <text x="350" y="50" fill="#484f58" font-family="Sora,sans-serif" font-size="9">2. Back-merge → develop ⚠️</text>
+        </svg>
+      </div>
+
+      <ul class="steps" style="margin-top:20px;">
+        <li><div class="step-num">1</div><div class="step-content"><div class="step-label" data-i18n="sc3-step1l">Merge στο main (Live)</div><div class="step-desc" data-i18n="sc3-step1d">Αυτό βάζει τον κώδικα στην παραγωγή</div></div></li>
+        <li><div class="step-num">2</div><div class="step-content"><div class="step-label" data-i18n="sc3-step2l">Tag (Σφραγίδα της έκδοσης)</div><div class="step-desc" data-i18n="sc3-step2d">Σηματοδοτεί το release — π.χ. v1.0</div></div></li>
+        <li><div class="step-num">3</div><div class="step-content"><div class="step-label" data-i18n="sc3-step3l">Back-merge στο develop ⚠️ ΚΡΙΣΙΜΟ</div><div class="step-desc" data-i18n="sc3-step3d">Οι bugfixes του release πρέπει να πάνε και στο develop!</div></div></li>
+        <li><div class="step-num">4</div><div class="step-content"><div class="step-label" data-i18n="sc3-step4l">Διαγραφή release branch</div><div class="step-desc" data-i18n="sc3-step4d">Δεν το χρειαζόμαστε πλέον</div></div></li>
+      </ul>
+
+      <div class="code-block" style="margin-top:20px;">
+        <div class="code-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> <span data-i18n="cb-header-s3">Terminal — Σενάριο 3: Deployment</span></div>
+        <pre id="code-s3"><span class="cmd-comment"># Βήμα 1: Merge στο main (Παραγωγή)</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">main</span>
+<span class="cmd-git">git</span> merge <span class="cmd-branch">release/v1.0</span>
+
+<span class="cmd-comment"># Βήμα 2: Ταγκάρισε την έκδοση</span>
+<span class="cmd-git">git</span> tag <span class="cmd-arg">-a</span> <span class="cmd-tag">v1.0</span> <span class="cmd-arg">-m</span> <span class="cmd-msg">"Production Release v1.0"</span>
+<span class="cmd-git">git</span> push <span class="cmd-arg">origin main --tags</span>
+
+<span class="cmd-comment"># Βήμα 3: ΚΡΙΣΙΜΟ — Back-merge στο develop</span>
+<span class="cmd-comment">#   (αν παραλείψεις αυτό, τα bugfixes θα χαθούν!)</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>
+<span class="cmd-git">git</span> merge <span class="cmd-branch">release/v1.0</span>
+<span class="cmd-git">git</span> push <span class="cmd-arg">origin develop</span>
+
+<span class="cmd-comment"># Βήμα 4: Διέγραψε το release branch</span>
+<span class="cmd-git">git</span> branch <span class="cmd-arg">-d</span> <span class="cmd-branch">release/v1.0</span>
+<span class="cmd-git">git</span> push <span class="cmd-arg">origin --delete</span> <span class="cmd-branch">release/v1.0</span></pre>
+      </div>
+      <div class="alert danger">
+        <div class="icon">🚨</div>
+        <div data-i18n="sc3-danger"><strong>Το πιο συχνό λάθος:</strong> Να ξεχάσεις το back-merge στο develop. Τότε, τα bugfixes που διόρθωσες στο UAT θα ξαναεμφανιστούν στο επόμενο release!</div>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div id="s4" class="tab-panel">
+      <h3 style="color:var(--accent); margin-bottom:16px;" data-i18n="sc4-h3">⚔️ Συγχρονισμός & Επίλυση Conflicts</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;" data-i18n="sc4-desc">Ένας συνάδελφος έκανε merge στο develop πριν από σένα. Τώρα υπάρχουν "συγκρουόμενες" αλλαγές.</p>
+
+      <div class="flow-diagram" style="padding:20px;">
+        <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:400px;">
+          <rect width="700" height="160" fill="#0d1117"/>
+          <text x="10" y="38" fill="#3fb950" font-family="JetBrains Mono,monospace" font-size="10">develop</text>
+          <text x="10" y="90" fill="#a371f7" font-family="JetBrains Mono,monospace" font-size="10">dev A</text>
+          <text x="10" y="140" fill="#58a6ff" font-family="JetBrains Mono,monospace" font-size="10">dev B</text>
+
+          <line x1="70" y1="30" x2="650" y2="30" stroke="#3fb950" stroke-width="2.5"/>
+
+          <circle cx="120" cy="80" r="5" fill="#a371f7"/>
+          <circle cx="240" cy="80" r="5" fill="#a371f7"/>
+          <line x1="120" y1="80" x2="240" y2="80" stroke="#a371f7" stroke-width="2"/>
+          <line x1="240" y1="80" x2="300" y2="30" stroke="#a371f7" stroke-width="2" stroke-dasharray="4,3"/>
+          <circle cx="300" cy="30" r="6" fill="#a371f7" stroke="#3fb950" stroke-width="2"/>
+          <text x="220" y="68" fill="#a371f7" font-family="Sora,sans-serif" font-size="9">Dev A merge (#1)</text>
+
+          <circle cx="160" cy="130" r="5" fill="#58a6ff"/>
+          <circle cx="340" cy="130" r="5" fill="#58a6ff"/>
+          <line x1="160" y1="130" x2="340" y2="130" stroke="#58a6ff" stroke-width="2"/>
+
+          <!-- dev B pulls develop -->
+          <line x1="300" y1="30" x2="380" y2="130" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.7"/>
+          <circle cx="380" cy="130" r="5" fill="#3fb950"/>
+          <text x="360" y="122" fill="#484f58" font-family="Sora,sans-serif" font-size="9">pull develop</text>
+
+          <!-- resolve conflict -->
+          <circle cx="460" cy="130" r="6" fill="#58a6ff" stroke="#ffd700" stroke-width="2"/>
+          <line x1="380" y1="130" x2="460" y2="130" stroke="#58a6ff" stroke-width="2"/>
+          <text x="385" y="148" fill="#ffd700" font-family="Sora,sans-serif" font-size="9">resolve conflict ✓</text>
+
+          <!-- dev B merge -->
+          <line x1="460" y1="130" x2="520" y2="30" stroke="#58a6ff" stroke-width="2" stroke-dasharray="4,3"/>
+          <circle cx="520" cy="30" r="6" fill="#58a6ff" stroke="#3fb950" stroke-width="2"/>
+          <text x="490" y="20" fill="#58a6ff" font-family="Sora,sans-serif" font-size="9">Dev B merge (#2)</text>
+        </svg>
+      </div>
+
+      <ul class="steps" style="margin-top:20px;">
+        <li><div class="step-num">1</div><div class="step-content"><div class="step-label" data-i18n="sc4-step1l">Ενημέρωσε το τοπικό develop</div><div class="step-desc" data-i18n="sc4-step1d">Κατέβασε τις αλλαγές του συναδέλφου</div></div></li>
+        <li><div class="step-num">2</div><div class="step-content"><div class="step-label" data-i18n="sc4-step2l">Πήγαινε στο feature σου & κάνε merge develop</div><div class="step-desc" data-i18n="sc4-step2d">Ενσωμάτωσε τις αλλαγές του στο δικό σου branch</div></div></li>
+        <li><div class="step-num">3</div><div class="step-content"><div class="step-label" data-i18n="sc4-step3l">Επίλυσε τα conflicts</div><div class="step-desc" data-i18n="sc4-step3d">Ανοίγεις τα αρχεία, διαλέγεις τι να κρατήσεις</div></div></li>
+        <li><div class="step-num">4</div><div class="step-content"><div class="step-label" data-i18n="sc4-step4l">Commit & Push</div><div class="step-desc" data-i18n="sc4-step4d">Ολοκλήρωσε και ανέβασε</div></div></li>
+      </ul>
+
+      <div class="code-block" style="margin-top:20px;">
+        <div class="code-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> <span data-i18n="cb-header-s4">Terminal — Σενάριο 4: Επίλυση Conflicts</span></div>
+        <pre id="code-s4"><span class="cmd-comment"># Βήμα 1: Ενημέρωσε το τοπικό develop</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>
+<span class="cmd-git">git</span> pull <span class="cmd-arg">origin develop</span>
+
+<span class="cmd-comment"># Βήμα 2: Πήγαινε στο feature σου</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">feature/my-task</span>
+<span class="cmd-git">git</span> merge <span class="cmd-branch">develop</span>
+<span class="cmd-comment"># → Θα δεις κάτι σαν: CONFLICT (content): Merge conflict in sales.sql</span>
+
+<span class="cmd-comment"># Βήμα 3: Άνοιξε το αρχείο — θα δεις:</span>
+<span class="cmd-comment"># &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD   (ο δικός σου κώδικας)</span>
+<span class="cmd-comment"># SELECT * FROM sales WHERE date &gt; '2024-01-01'</span>
+<span class="cmd-comment"># =======</span>
+<span class="cmd-comment"># SELECT * FROM sales WHERE region = 'EU'   (συνάδελφος)</span>
+<span class="cmd-comment"># &gt;&gt;&gt;&gt;&gt;&gt;&gt; develop</span>
+<span class="cmd-comment">#</span>
+<span class="cmd-comment"># Διόρθωσε — κράτα το σωστό, σβήσε τα &lt;&lt;&lt; === &gt;&gt;&gt;</span>
+
+<span class="cmd-comment"># Βήμα 4: Ολοκλήρωσε το merge</span>
+<span class="cmd-git">git</span> add .
+<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"chore: resolve conflicts with develop"</span>
+<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">feature/my-task</span></pre>
+      </div>
+      <div class="alert tip">
+        <div class="icon">💡</div>
+        <div data-i18n="sc4-tip"><strong>Συμβουλή:</strong> Κάνε merge develop στο feature branch σου συχνά (κάθε μέρα ή δύο). Όσο πιο συχνά, τόσο μικρότερα τα conflicts.</div>
+      </div>
+    </div>
+
+    <!-- S5 -->
+    <div id="s5" class="tab-panel">
+      <h3 style="color:var(--hotfix); margin-bottom:16px;" data-i18n="sc5-h3">🔥 Hotfix — Επείγουσα Διόρθωση στην Παραγωγή</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;" data-i18n="sc5-desc">Βρέθηκε κρίσιμο bug στο LIVE σύστημα και πρέπει να διορθωθεί <strong>τώρα</strong>. Ξεκινάς από το main, ΟΧΙ από το develop.</p>
+
+      <div class="flow-diagram" style="padding:20px;">
+        <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:400px;">
+          <rect width="700" height="160" fill="#0d1117"/>
+          <text x="10" y="38" fill="#3fb950" font-family="JetBrains Mono,monospace" font-size="10">develop</text>
+          <text x="10" y="100" fill="#ff8c8c" font-family="JetBrains Mono,monospace" font-size="10">hotfix</text>
+          <text x="10" y="148" fill="#ff5c5c" font-family="JetBrains Mono,monospace" font-size="10">main</text>
+
+          <line x1="70" y1="30" x2="650" y2="30" stroke="#3fb950" stroke-width="2.5"/>
+          <line x1="70" y1="140" x2="650" y2="140" stroke="#ff5c5c" stroke-width="2.5"/>
+
+          <circle cx="120" cy="140" r="6" fill="#ff5c5c"/>
+          <text x="110" y="158" fill="#ff5c5c" font-family="Sora,sans-serif" font-size="8">🐛 Bug!</text>
+
+          <!-- main to hotfix -->
+          <line x1="120" y1="140" x2="180" y2="90" stroke="#ff8c8c" stroke-width="2" stroke-dasharray="4,3"/>
+          <circle cx="180" cy="90" r="5" fill="#ff8c8c"/>
+          <circle cx="300" cy="90" r="5" fill="#ff8c8c"/>
+          <line x1="180" y1="90" x2="300" y2="90" stroke="#ff8c8c" stroke-width="2"/>
+          <text x="210" y="78" fill="#ff8c8c" font-family="JetBrains Mono,monospace" font-size="9">fix: critical bug</text>
+
+          <!-- hotfix to main -->
+          <line x1="300" y1="90" x2="360" y2="140" stroke="#ff8c8c" stroke-width="2" stroke-dasharray="4,3"/>
+          <circle cx="360" cy="140" r="8" fill="#ff5c5c" stroke="#ff8c8c" stroke-width="2"/>
+          <rect x="370" y="130" width="48" height="16" rx="4" fill="#21262d" stroke="#ffd700" stroke-width="1"/>
+          <text x="374" y="142" fill="#ffd700" font-family="JetBrains Mono,monospace" font-size="9" font-weight="700">v1.0.1</text>
+
+          <!-- hotfix back to develop - starts from main merge node -->
+          <line x1="360" y1="140" x2="460" y2="30" stroke="#ff8c8c" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.7"/>
+          <circle cx="460" cy="30" r="6" fill="#ff8c8c" stroke="#3fb950" stroke-width="2"/>
+          <text x="370" y="55" fill="#484f58" font-family="Sora,sans-serif" font-size="9">back-merge → develop ⚠️</text>
+        </svg>
+      </div>
+
+      <ul class="steps" style="margin-top:20px;">
+        <li><div class="step-num">1</div><div class="step-content"><div class="step-label" data-i18n="sc5-step1l">Ξεκίνα από το main (ΟΧΙ develop!)</div><div class="step-desc" data-i18n="sc5-step1d">Θέλεις τον κώδικα που είναι ακριβώς στην παραγωγή</div></div></li>
+        <li><div class="step-num">2</div><div class="step-content"><div class="step-label" data-i18n="sc5-step2l">Δημιούργησε hotfix branch</div><div class="step-desc" data-i18n="sc5-step2d">Διόρθωσε μόνο αυτό που καίει</div></div></li>
+        <li><div class="step-num">3</div><div class="step-content"><div class="step-label" data-i18n="sc5-step3l">Merge & Tag στο main</div><div class="step-desc" data-i18n="sc5-step3d">Ανέβασε στην παραγωγή με νέο version tag</div></div></li>
+        <li><div class="step-num">4</div><div class="step-content"><div class="step-label" data-i18n="sc5-step4l">Back-merge στο develop ⚠️ ΚΡΙΣΙΜΟ</div><div class="step-desc" data-i18n="sc5-step4d">Αλλιώς το bug θα ξαναεμφανιστεί!</div></div></li>
+        <li><div class="step-num">5</div><div class="step-content"><div class="step-label" data-i18n="sc5-step5l">Back-merge στο ενεργό release (αν υπάρχει)</div><div class="step-desc" data-i18n="sc5-step5d">Αν υπάρχει release/v1.1 ανοιχτό, κάνε merge και εκεί</div></div></li>
+      </ul>
+
+      <div class="code-block" style="margin-top:20px;">
+        <div class="code-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> <span data-i18n="cb-header-s5">Terminal — Scenario 5: Hotfix</span></div>
+        <pre id="code-s5"><span class="cmd-comment"># Βήμα 1 & 2: Ξεκίνα από main, δημιούργησε hotfix</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">main</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-arg">-b</span> <span class="cmd-branch">hotfix/fix-prod-filter</span>
+
+<span class="cmd-comment"># Βήμα 3: Διόρθωσε & commit (μόνο αυτό που καίει!)</span>
+<span class="cmd-git">git</span> add .
+<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"fix: production critical filter correction"</span>
+
+<span class="cmd-comment"># Βήμα 4: Merge & Tag στο main</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">main</span>
+<span class="cmd-git">git</span> merge <span class="cmd-branch">hotfix/fix-prod-filter</span>
+<span class="cmd-git">git</span> tag <span class="cmd-arg">-a</span> <span class="cmd-tag">v1.0.1</span> <span class="cmd-arg">-m</span> <span class="cmd-msg">"Hotfix for filter bug"</span>
+<span class="cmd-git">git</span> push <span class="cmd-arg">origin main --tags</span>
+
+<span class="cmd-comment"># Βήμα 5: ΚΡΙΣΙΜΟ — Back-merge στο develop</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>
+<span class="cmd-git">git</span> merge <span class="cmd-branch">hotfix/fix-prod-filter</span>
+<span class="cmd-git">git</span> push <span class="cmd-arg">origin develop</span>
+
+<span class="cmd-comment"># Βήμα 6: Αν υπάρχει ενεργό release branch, merge εκεί επίσης</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">release/v1.1</span>
+<span class="cmd-git">git</span> merge <span class="cmd-branch">hotfix/fix-prod-filter</span>
+<span class="cmd-git">git</span> push <span class="cmd-arg">origin release/v1.1</span>
+
+<span class="cmd-comment"># Βήμα 7: Καθαρισμός</span>
+<span class="cmd-git">git</span> branch <span class="cmd-arg">-d</span> <span class="cmd-branch">hotfix/fix-prod-filter</span></pre>
+      </div>
+      <div class="alert danger">
+        <div class="icon">🚨</div>
+        <div data-i18n="sc5-danger"><strong>Hotfix ≠ Feature.</strong> Ένα hotfix διορθώνει ΜΟΝΟ αυτό που "καίει". Αν θέλεις να κάνεις και άλλες αλλαγές, φτιάχνεις feature branch ξεχωριστά.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. PARALLEL -->
+<section id="parallel">
+  <div class="container">
+    <h2><span class="num">06</span> <span data-i18n="s6-title">Παράλληλη Ανάπτυξη — 3 Developers Ταυτόχρονα</span></h2>
+    <p class="section-sub" data-i18n="s6-sub">Πώς δουλεύουν 3 άτομα ταυτόχρονα και κάνουν merge χωρίς να "τσακωθούν".</p>
+
+    <div class="alert info" style="margin-bottom:24px;">
+      <div class="icon">📖</div>
+      <div data-i18n="s6-alert"><strong>Ο κανόνας:</strong> Ο πρώτος που κάνει merge στο develop περνάει clean. Ο δεύτερος και τρίτος <em>πρέπει πρώτα να τραβήξουν το ενημερωμένο develop</em> και να λύσουν τυχόν conflicts, πριν ανοίξουν Pull Request.</div>
+    </div>
+
+    <div class="parallel-grid">
+      <div class="dev-col">
+        <h5 style="color:var(--feature)">👨‍💻 Developer A — sales_etl.sql</h5>
+        <div class="timeline-event"><div class="ev-dot ev-green"></div><div>checkout develop<br><span style="color:var(--text-muted); font-size:11px;">git checkout develop && pull</span></div></div>
+        <div class="timeline-event"><div class="ev-dot ev-purple"></div><div>feature/sales-task branch<br><span style="color:var(--text-muted); font-size:11px;">git checkout -b feature/sales-task</span></div></div>
+        <div class="timeline-event"><div class="ev-dot ev-purple"></div><div>3 commits — SQL logic<br><span style="color:var(--text-muted); font-size:11px;">feat: add daily aggregation</span></div></div>
+        <div class="timeline-event"><div class="ev-dot ev-blue"></div><div>Pull Request ✓ (1ος!)<br><span style="color:var(--text-muted); font-size:11px;">Merge στο develop — clean</span></div></div>
+      </div>
+
+      <div class="dev-col">
+        <h5 style="color:#79c0ff">👩‍💻 Developer B — customers_etl.sql</h5>
+        <div class="timeline-event"><div class="ev-dot ev-green"></div><div>checkout develop<br><span style="color:var(--text-muted); font-size:11px;">git checkout develop && pull</span></div></div>
+        <div class="timeline-event"><div class="ev-dot ev-blue"></div><div>feature/customers-task<br><span style="color:var(--text-muted); font-size:11px;">git checkout -b feature/customers-task</span></div></div>
+        <div class="timeline-event"><div class="ev-dot ev-blue"></div><div>2 commits<br><span style="color:var(--text-muted); font-size:11px;">feat: add customer segmentation</span></div></div>
+        <div class="timeline-event" style="background:rgba(255,215,0,0.05); border-radius:6px; padding:6px; margin-bottom:6px;">
+          <div class="ev-dot ev-orange"></div>
+          <div><strong style="font-size:12px;">Τραβά το develop (Dev A merge έγινε!)</strong><br><span style="color:var(--text-muted); font-size:11px;">git merge develop — conflict!</span></div>
+        </div>
+        <div class="timeline-event"><div class="ev-dot" style="background:var(--gold)"></div><div>Λύνει conflict ✓<br><span style="color:var(--text-muted); font-size:11px;">chore: resolve conflicts</span></div></div>
+        <div class="timeline-event"><div class="ev-dot ev-blue"></div><div>Pull Request ✓ (2ος)<br><span style="color:var(--text-muted); font-size:11px;">Merge στο develop</span></div></div>
+      </div>
+
+      <div class="dev-col">
+        <h5 style="color:#56d364">👨‍💻 Developer C — products_etl.sql</h5>
+        <div class="timeline-event"><div class="ev-dot ev-green"></div><div>checkout develop<br><span style="color:var(--text-muted); font-size:11px;">git checkout develop && pull</span></div></div>
+        <div class="timeline-event"><div class="ev-dot ev-green"></div><div>feature/products-task<br><span style="color:var(--text-muted); font-size:11px;">git checkout -b feature/products-task</span></div></div>
+        <div class="timeline-event"><div class="ev-dot ev-green"></div><div>5 commits — μεγάλη εργασία<br><span style="color:var(--text-muted); font-size:11px;">feat, fix, chore commits...</span></div></div>
+        <div class="timeline-event" style="background:rgba(255,215,0,0.05); border-radius:6px; padding:6px; margin-bottom:6px;">
+          <div class="ev-dot ev-orange"></div>
+          <div><strong style="font-size:12px;">Τραβά develop (Dev A & B merge!)</strong><br><span style="color:var(--text-muted); font-size:11px;">git merge develop — 2 conflicts!</span></div>
+        </div>
+        <div class="timeline-event"><div class="ev-dot" style="background:var(--gold)"></div><div>Λύνει 2 conflicts ✓<br><span style="color:var(--text-muted); font-size:11px;">chore: resolve merge conflicts</span></div></div>
+        <div class="timeline-event"><div class="ev-dot ev-green"></div><div>Pull Request ✓ (3ος)<br><span style="color:var(--text-muted); font-size:11px;">Merge στο develop</span></div></div>
+      </div>
+    </div>
+
+    <div class="code-block" style="margin-top:24px;">
+      <div class="code-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> <span data-i18n="cb-header-p6">Terminal — Developer B (2ος που merges)</span></div>
+      <pre id="code-p6"><span class="cmd-comment"># Βλέπεις ότι ο Dev A merge — ενημερώσου πριν κάνεις PR</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>
+<span class="cmd-git">git</span> pull <span class="cmd-arg">origin develop</span>         <span class="cmd-comment"># Κατέβασε τις αλλαγές του Dev A</span>
+
+<span class="cmd-git">git</span> checkout <span class="cmd-branch">feature/customers-task</span>
+<span class="cmd-git">git</span> merge <span class="cmd-branch">develop</span>              <span class="cmd-comment"># Ενσωμάτωσε τις αλλαγές στο δικό σου branch</span>
+
+<span class="cmd-comment"># Αν υπάρχουν conflicts, λύσε τα (δες Σενάριο 4)</span>
+<span class="cmd-git">git</span> add .
+<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"chore: sync with develop after sales-task merge"</span>
+<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">feature/customers-task</span>
+<span class="cmd-comment"># → Τώρα άνοιξε το Pull Request — θα περάσει clean</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 7. COMMITS -->
+<section id="commits">
+  <div class="container">
+    <h2><span class="num">07</span> <span data-i18n="s7-title">Conventional Commits — Η Γλώσσα των Commits</span></h2>
+    <p class="section-sub" data-i18n="s7-sub">Μια κοινή σύμβαση ώστε όλοι να καταλαβαίνουν τι άλλαξε, από ποιον, και γιατί.</p>
+
+    <div class="card" style="margin-bottom:24px;">
+      <h3 data-i18n="s7-card-title">🤔 Γιατί σημαντικό;</h3>
+      <p style="font-size:13px; color:var(--text-muted);" data-i18n="s7-card-body">Φαντάσου να ανοίγεις το git log 3 μήνες μετά. Ποιο είναι πιο χρήσιμο;</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;">
+        <div>
+          <div style="font-size:11px; color:var(--main); margin-bottom:8px; font-weight:700;" data-i18n="s7-bad-label">❌ Χωρίς σύμβαση</div>
+          <div class="code-block">
+            <pre style="font-size:12px; padding:12px;">changes
+updated stuff
+fix
+final version
+FINAL v2
+aaa</pre>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px; color:var(--develop); margin-bottom:8px; font-weight:700;" data-i18n="s7-good-label">✅ Με Conventional Commits</div>
+          <div class="code-block">
+            <pre style="font-size:12px; padding:12px;"><span class="cmd-msg">feat(etl): add daily sales aggregation
+fix(sql): correct date filter in query
+chore(dsx): export updated job config
+docs: update ETL pipeline readme
+fix(etl): hotfix filter bug in prod</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <table class="commit-table">
+      <thead>
+        <tr>
+          <th>Prefix</th>
+          <th data-i18n="ct-col-meaning">Ελληνικά</th>
+          <th data-i18n="ct-col-when">Πότε το χρησιμοποιείς</th>
+          <th data-i18n="ct-col-example">Παράδειγμα</th>
+          <th data-i18n="ct-col-allowed">Επιτρέπεται σε</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="commit-prefix" style="background:rgba(63,185,80,0.15); color:#3fb950;">feat</span></td>
+          <td data-i18n="ct-feat-meaning">Νέα λειτουργία</td>
+          <td data-i18n="ct-feat-when">Πρόσθεσες κάτι καινούριο</td>
+          <td><code style="font-size:11px; color:var(--text-muted);">feat(etl): add sales transformation</code></td>
+          <td><span class="allowed-badge ab-feature">feature</span></td>
+        </tr>
+        <tr>
+          <td><span class="commit-prefix" style="background:rgba(255,92,92,0.15); color:#ff5c5c;">fix</span></td>
+          <td data-i18n="ct-fix-meaning">Διόρθωση</td>
+          <td data-i18n="ct-fix-when">Διόρθωσες κάτι που δεν δούλευε</td>
+          <td><code style="font-size:11px; color:var(--text-muted);">fix(sql): correct aggregation logic</code></td>
+          <td><span class="allowed-badge ab-feature">feature</span><span class="allowed-badge ab-release">release</span><span class="allowed-badge ab-hotfix">hotfix</span></td>
+        </tr>
+        <tr>
+          <td><span class="commit-prefix" style="background:rgba(88,166,255,0.15); color:#58a6ff;">chore</span></td>
+          <td data-i18n="ct-chore-meaning">Τακτοποίηση</td>
+          <td data-i18n="ct-chore-when">Δεν άλλαξες λογική — μόνο δομή/config</td>
+          <td><code style="font-size:11px; color:var(--text-muted);">chore(dsx): export updated job config</code></td>
+          <td><span class="allowed-badge ab-feature">feature</span><span class="allowed-badge ab-release">release</span><span class="allowed-badge ab-hotfix">hotfix</span></td>
+        </tr>
+        <tr>
+          <td><span class="commit-prefix" style="background:rgba(163,113,247,0.15); color:#a371f7;">docs</span></td>
+          <td data-i18n="ct-docs-meaning">Τεκμηρίωση</td>
+          <td data-i18n="ct-docs-when">Ενημέρωσες README ή σχόλια</td>
+          <td><code style="font-size:11px; color:var(--text-muted);">docs: update pipeline documentation</code></td>
+          <td><span class="allowed-badge ab-feature">feature</span><span class="allowed-badge ab-release">release</span></td>
+        </tr>
+        <tr>
+          <td><span class="commit-prefix" style="background:rgba(240,136,62,0.15); color:#f0883e;">refactor</span></td>
+          <td data-i18n="ct-refactor-meaning">Αναδιοργάνωση</td>
+          <td data-i18n="ct-refactor-when">Ίδια λογική, καλύτερος κώδικας</td>
+          <td><code style="font-size:11px; color:var(--text-muted);">refactor(sql): simplify join logic</code></td>
+          <td><span class="allowed-badge ab-feature">feature</span></td>
+        </tr>
+        <tr>
+          <td><span class="commit-prefix" style="background:rgba(255,215,0,0.15); color:#ffd700;">revert</span></td>
+          <td data-i18n="ct-revert-meaning">Αναίρεση</td>
+          <td data-i18n="ct-revert-when">Αναιρείς ένα προηγούμενο commit</td>
+          <td><code style="font-size:11px; color:var(--text-muted);">revert: revert "feat: add filter"</code></td>
+          <td><span class="allowed-badge ab-feature">feature</span><span class="allowed-badge ab-release">release</span><span class="allowed-badge ab-hotfix">hotfix</span></td>
+        </tr>
+        <tr>
+          <td><span class="commit-prefix" style="background:rgba(120,120,120,0.15); color:#9e9e9e;">test</span></td>
+          <td data-i18n="ct-test-meaning">Δοκιμές</td>
+          <td data-i18n="ct-test-when">Πρόσθεσες ή ενημέρωσες tests</td>
+          <td><code style="font-size:11px; color:var(--text-muted);">test(etl): add unit test for sales aggregation</code></td>
+          <td><span class="allowed-badge ab-feature">feature</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="card" style="margin-top:24px;">
+      <h3 data-i18n="s7-scope-card">📐 Η Δομή ενός Commit Message</h3>
+      <div class="code-block">
+        <pre id="code-commit-structure"><span class="cmd-comment"># Βασική μορφή:</span>
+<span class="cmd-msg">type(scope): σύντομη περιγραφή στα αγγλικά</span>
+
+<span class="cmd-comment"># Παραδείγματα:</span>
+<span class="cmd-msg">feat(etl): add daily sales aggregation job</span>
+<span class="cmd-msg">fix(sql): correct date filter for EU region</span>
+<span class="cmd-msg">chore(dsx): export sales_pipeline job config</span>
+<span class="cmd-msg">feat(etl/customers): add customer segmentation logic</span>
+<span class="cmd-msg">fix(prod): hotfix null values in revenue column</span>
+<span class="cmd-msg">test(etl): add unit test for sales aggregation</span></pre>
+      </div>
+      <div class="alert tip" style="margin-top:0;">
+        <div class="icon">💡</div>
+        <div data-i18n="s7-scope-tip">Το <strong>scope</strong> (αυτό στις παρενθέσεις) είναι προαιρετικό αλλά πολύ χρήσιμο. Δείχνει ποιο κομμάτι του κώδικα αγγίξατε — π.χ. <code>etl</code>, <code>sql</code>, <code>dsx</code>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. PULL REQUEST -->
+<section id="pullrequest">
+  <div class="container">
+    <h2><span class="num">08</span> <span data-i18n="pr-title">Τι είναι το Pull Request (PR);</span></h2>
+    <p class="section-sub" data-i18n="pr-sub">Το βήμα που διασφαλίζει ότι κανείς δεν βάζει κώδικα στο develop χωρίς να το δει κάποιος άλλος πρώτα.</p>
+
+    <div class="card">
+      <h3 data-i18n="pr-what-title">🤔 Με απλά λόγια</h3>
+      <p data-i18n="pr-what-body">Ένα Pull Request είναι μια <strong>επίσημη αίτηση</strong> να ενωθεί ο κώδικάς σου με κάποιο κεντρικό branch. Δεν κάνεις merge μόνος σου — ζητάς από την ομάδα να κοιτάξει τι έγραψες, να σχολιάσει, και να εγκρίνει. Γίνεται μέσα στο GitHub ή GitLab, στο browser.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:16px; margin-top:8px;">
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem; margin-bottom:10px;">1️⃣</div>
+        <h3 data-i18n="pr-step1-title">Push το branch σου</h3>
+        <p style="font-size:13px; color:var(--text-muted);" data-i18n="pr-step1-body">Ανεβάζεις το feature branch στο remote με <code style="color:var(--accent)">git push origin feature/xxx</code></p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem; margin-bottom:10px;">2️⃣</div>
+        <h3 data-i18n="pr-step2-title">Άνοιξε PR στο UI</h3>
+        <p style="font-size:13px; color:var(--text-muted);" data-i18n="pr-step2-body">Στο GitHub/GitLab πατάς "New Pull Request", επιλέγεις από <code style="color:var(--feature)">feature/xxx</code> προς <code style="color:var(--develop)">develop</code></p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem; margin-bottom:10px;">3️⃣</div>
+        <h3 data-i18n="pr-step3-title">Code Review</h3>
+        <p style="font-size:13px; color:var(--text-muted);" data-i18n="pr-step3-body">Συνάδελφος κοιτάει τον κώδικα, αφήνει σχόλια. Διορθώνεις αν χρειαστεί και κάνεις push ξανά — το PR ενημερώνεται αυτόματα.</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem; margin-bottom:10px;">4️⃣</div>
+        <h3 data-i18n="pr-step4-title">Approve & Merge</h3>
+        <p style="font-size:13px; color:var(--text-muted);" data-i18n="pr-step4-body">Μετά την έγκριση, πατάς "Merge Pull Request". Ο κώδικας μπαίνει στο develop. Το feature branch μπορεί να διαγραφεί.</p>
+      </div>
+    </div>
+
+    <div class="alert info" style="margin-top:24px;">
+      <div class="icon">💡</div>
+      <div data-i18n="pr-tip">
+        <strong>Καλή πρακτική για PR descriptions:</strong> Γράψε τι αλλάζει, γιατί, και πώς να το δοκιμάσεις. Ένα καλό PR description εξοικονομεί χρόνο στον reviewer και επιταχύνει την έγκριση.
+      </div>
+    </div>
+
+    <div class="alert warn" style="margin-top:8px;">
+      <div class="icon">⚠️</div>
+      <div data-i18n="pr-warn">
+        <strong>Ποτέ μην κάνεις merge το δικό σου PR</strong> χωρίς review — ακόμα και αν είσαι σίγουρος ότι είναι σωστό. Το review δεν είναι μόνο για bugs, είναι και για να ξέρει η ομάδα τι μπήκε στον κώδικα.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. LIFECYCLE -->
+<section id="lifecycle">
+  <div class="container">
+    <h2><span class="num">09</span> <span data-i18n="lc-title">Ο Κύκλος Ζωής ενός Feature</span></h2>
+    <p class="section-sub" data-i18n="lc-sub">Από τη στιγμή που παίρνεις ένα task μέχρι να βγει live στην παραγωγή — το πλήρες timeline.</p>
+
+    <div style="position:relative; padding: 10px 0;">
+      <!-- Timeline -->
+      <div style="position:absolute; left:28px; top:0; bottom:0; width:2px; background:linear-gradient(to bottom, var(--feature), var(--develop), var(--release), var(--main)); opacity:0.4; border-radius:2px;"></div>
+
+      <!-- Step 1 -->
+      <div style="display:flex; gap:20px; margin-bottom:28px; align-items:flex-start;">
+        <div style="min-width:58px; height:58px; border-radius:50%; background:rgba(163,113,247,0.15); border:2px solid var(--feature); display:flex; align-items:center; justify-content:center; font-size:1.4rem; position:relative; z-index:1;">📋</div>
+        <div class="card" style="flex:1; margin-bottom:0;">
+          <h3 style="color:var(--feature);" data-i18n="lc-s1-title">Παίρνεις το Task</h3>
+          <p style="font-size:13px; color:var(--text-muted);" data-i18n="lc-s1-body">Από Jira, Asana, ή το team board. Διαβάζεις τι ζητάει, κατανοείς τι πρέπει να αλλάξει στον κώδικα.</p>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--feature); background:rgba(163,113,247,0.1); padding:2px 8px; border-radius:4px;" data-i18n="lc-s1-tag">Branch: ακόμα στο develop</span>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div style="display:flex; gap:20px; margin-bottom:28px; align-items:flex-start;">
+        <div style="min-width:58px; height:58px; border-radius:50%; background:rgba(163,113,247,0.15); border:2px solid var(--feature); display:flex; align-items:center; justify-content:center; font-size:1.4rem; position:relative; z-index:1;">🌿</div>
+        <div class="card" style="flex:1; margin-bottom:0;">
+          <h3 style="color:var(--feature);" data-i18n="lc-s2-title">Δημιουργείς Feature Branch</h3>
+          <p style="font-size:13px; color:var(--text-muted);" data-i18n="lc-s2-body"><code style="color:var(--accent)">git checkout -b feature/my-task</code> — Απομονώνεσαι από την υπόλοιπη ομάδα. Γράφεις κώδικα, κάνεις commits.</p>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--feature); background:rgba(163,113,247,0.1); padding:2px 8px; border-radius:4px;">feature/my-task</span>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div style="display:flex; gap:20px; margin-bottom:28px; align-items:flex-start;">
+        <div style="min-width:58px; height:58px; border-radius:50%; background:rgba(88,166,255,0.15); border:2px solid var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem; position:relative; z-index:1;">🔍</div>
+        <div class="card" style="flex:1; margin-bottom:0;">
+          <h3 style="color:var(--accent);" data-i18n="lc-s3-title">Pull Request & Code Review</h3>
+          <p style="font-size:13px; color:var(--text-muted);" data-i18n="lc-s3-body">Push το branch, ανοίγεις PR στο GitHub/GitLab. Συνάδελφος κάνει review. Διορθώνεις τυχόν παρατηρήσεις.</p>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); background:rgba(88,166,255,0.1); padding:2px 8px; border-radius:4px;" data-i18n="lc-s3-tag">feature → develop (μέσω PR)</span>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div style="display:flex; gap:20px; margin-bottom:28px; align-items:flex-start;">
+        <div style="min-width:58px; height:58px; border-radius:50%; background:rgba(63,185,80,0.15); border:2px solid var(--develop); display:flex; align-items:center; justify-content:center; font-size:1.4rem; position:relative; z-index:1;">🔀</div>
+        <div class="card" style="flex:1; margin-bottom:0;">
+          <h3 style="color:var(--develop);" data-i18n="lc-s4-title">Merge στο Develop</h3>
+          <p style="font-size:13px; color:var(--text-muted);" data-i18n="lc-s4-body">Εγκρίθηκε το PR. Ο κώδικάς σου μπαίνει στο develop μαζί με τα features άλλων developers. Διαγράφεις το feature branch.</p>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--develop); background:rgba(63,185,80,0.1); padding:2px 8px; border-radius:4px;">develop</span>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div style="display:flex; gap:20px; margin-bottom:28px; align-items:flex-start;">
+        <div style="min-width:58px; height:58px; border-radius:50%; background:rgba(240,136,62,0.15); border:2px solid var(--release); display:flex; align-items:center; justify-content:center; font-size:1.4rem; position:relative; z-index:1;">🧪</div>
+        <div class="card" style="flex:1; margin-bottom:0;">
+          <h3 style="color:var(--release);" data-i18n="lc-s5-title">Release Branch & UAT</h3>
+          <p style="font-size:13px; color:var(--text-muted);" data-i18n="lc-s5-body">Δημιουργείται <code style="color:var(--accent)">release/v1.x</code> από το develop. Πάει για UAT testing. Αν βρεθούν bugs, διορθώνονται εδώ.</p>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--release); background:rgba(240,136,62,0.1); padding:2px 8px; border-radius:4px;">release/v1.x → UAT</span>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div style="display:flex; gap:20px; align-items:flex-start;">
+        <div style="min-width:58px; height:58px; border-radius:50%; background:rgba(255,92,92,0.15); border:2px solid var(--main); display:flex; align-items:center; justify-content:center; font-size:1.4rem; position:relative; z-index:1;">🚀</div>
+        <div class="card" style="flex:1; margin-bottom:0; border-color:rgba(255,92,92,0.3);">
+          <h3 style="color:var(--main);" data-i18n="lc-s6-title">Production — Live! 🎉</h3>
+          <p style="font-size:13px; color:var(--text-muted);" data-i18n="lc-s6-body">UAT έδωσε OK. Merge στο main, tag της έκδοσης, back-merge στο develop. Ο κώδικάς σου είναι τώρα live.</p>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--main); background:rgba(255,92,92,0.1); padding:2px 8px; border-radius:4px;">release/v1.x → main + develop</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert tip" style="margin-top:28px;">
+      <div class="icon">⏱️</div>
+      <div data-i18n="lc-tip"><strong>Τυπικό timeline:</strong> Feature branch → 1-5 μέρες ανάπτυξη → PR review 1-2 μέρες → UAT 2-5 μέρες → Production. Ο χρόνος ποικίλλει ανά ομάδα, αλλά η ροή παραμένει πάντα η ίδια.</div>
+    </div>
+
+    <!-- Multi-team real scenario diagram -->
+    <div style="margin-top:36px;">
+      <h3 style="margin-bottom:6px;" data-i18n="mt-title">🏢 Παράδειγμα: 3 Teams — Πραγματικό Σενάριο</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;" data-i18n="mt-sub">Πώς δουλεύουν παράλληλα 3 διαφορετικά teams και οδηγούν τον κώδικα στην παραγωγή χωρίς να "συγκρουστούν".</p>
+
+      <div class="flow-diagram" style="padding:28px 20px;">
+        <svg viewBox="0 0 980 560" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:700px;">
+          <rect width="980" height="560" fill="#0d1117"/>
+
+          <!-- Week labels -->
+          <text x="148" y="18" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="10" text-anchor="middle">Week 1</text>
+          <text x="298" y="18" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="10" text-anchor="middle">Week 2</text>
+          <text x="448" y="18" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="10" text-anchor="middle">Week 3</text>
+          <text x="598" y="18" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="10" text-anchor="middle">Week 4</text>
+          <text x="748" y="18" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="10" text-anchor="middle">Week 5</text>
+          <text x="898" y="18" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="10" text-anchor="middle">Week 6</text>
+
+          <!-- Week dividers -->
+          <line x1="73"  y1="24" x2="73"  y2="488" stroke="#1c2128" stroke-width="1"/>
+          <line x1="223" y1="24" x2="223" y2="488" stroke="#1c2128" stroke-width="1"/>
+          <line x1="373" y1="24" x2="373" y2="488" stroke="#1c2128" stroke-width="1"/>
+          <line x1="523" y1="24" x2="523" y2="488" stroke="#1c2128" stroke-width="1"/>
+          <line x1="673" y1="24" x2="673" y2="488" stroke="#1c2128" stroke-width="1"/>
+          <line x1="823" y1="24" x2="823" y2="488" stroke="#1c2128" stroke-width="1"/>
+
+          <!-- Lane labels -->
+          <text x="8" y="65"  fill="#3fb950" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700">develop</text>
+          <text x="8" y="132" fill="#a371f7" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700">Team A</text>
+          <text x="8" y="146" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="9">Sales ETL</text>
+          <text x="8" y="228" fill="#58a6ff" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700">Team B</text>
+          <text x="8" y="242" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="9">Customers</text>
+          <text x="8" y="328" fill="#56d364" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700">Team C</text>
+          <text x="8" y="342" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="9">Products</text>
+          <text x="8" y="418" fill="#f0883e" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700">release</text>
+          <text x="8" y="432" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="9">v1.0</text>
+          <text x="8" y="482" fill="#ff5c5c" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700">main</text>
+
+          <!-- Lane separators -->
+          <line x1="73" y1="98"  x2="975" y2="98"  stroke="#1c2128" stroke-width="1"/>
+          <line x1="73" y1="192" x2="975" y2="192" stroke="#1c2128" stroke-width="1"/>
+          <line x1="73" y1="292" x2="975" y2="292" stroke="#1c2128" stroke-width="1"/>
+          <line x1="73" y1="390" x2="975" y2="390" stroke="#1c2128" stroke-width="1"/>
+          <line x1="73" y1="458" x2="975" y2="458" stroke="#1c2128" stroke-width="1"/>
+
+          <!-- ═══ DEVELOP ═══ -->
+          <line x1="73" y1="60" x2="975" y2="60" stroke="#3fb950" stroke-width="2.5"/>
+
+          <!-- ═══ MAIN ═══ -->
+          <line x1="73" y1="478" x2="975" y2="478" stroke="#ff5c5c" stroke-width="2.5"/>
+
+          <!-- ══════════════════════════
+               TEAM A  (y=138)
+               branch@x=90 → merge@x=310
+          ══════════════════════════ -->
+          <!-- branch-off dot on develop -->
+          <circle cx="90" cy="60" r="5" fill="#3fb950"/>
+          <!-- diagonal down to feature lane -->
+          <line x1="90" y1="60" x2="110" y2="138" stroke="#a371f7" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <!-- feature commits -->
+          <line x1="110" y1="138" x2="220" y2="138" stroke="#a371f7" stroke-width="2"/>
+          <circle cx="110" cy="138" r="5" fill="#a371f7"/>
+          <circle cx="165" cy="138" r="5" fill="#a371f7"/>
+          <circle cx="220" cy="138" r="5" fill="#a371f7"/>
+          <text x="140" y="126" fill="#a371f7" font-family="JetBrains Mono,monospace" font-size="8">feat commits</text>
+          <!-- PR badge -->
+          <rect x="224" y="129" width="52" height="16" rx="4" fill="rgba(163,113,247,0.18)" stroke="#a371f7" stroke-width="1"/>
+          <text x="228" y="141" fill="#a371f7" font-family="JetBrains Mono,monospace" font-size="8">PR review</text>
+          <!-- diagonal up to develop merge node -->
+          <line x1="276" y1="138" x2="310" y2="60" stroke="#a371f7" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <!-- merge node on develop -->
+          <circle cx="310" cy="60" r="7" fill="#a371f7" stroke="#3fb950" stroke-width="2.5"/>
+          <text x="296" y="49" fill="#a371f7" font-family="Sora,sans-serif" font-size="9" font-weight="700">merge #1</text>
+
+          <!-- ══════════════════════════
+               TEAM B  (y=238)
+               branch@x=130 → merge@x=460
+          ══════════════════════════ -->
+          <circle cx="130" cy="60" r="5" fill="#3fb950"/>
+          <line x1="130" y1="60" x2="150" y2="238" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <!-- feature commits -->
+          <line x1="150" y1="238" x2="318" y2="238" stroke="#58a6ff" stroke-width="2"/>
+          <circle cx="150" cy="238" r="5" fill="#58a6ff"/>
+          <circle cx="234" cy="238" r="5" fill="#58a6ff"/>
+          <circle cx="318" cy="238" r="5" fill="#58a6ff"/>
+          <text x="180" y="226" fill="#58a6ff" font-family="JetBrains Mono,monospace" font-size="8">feat commits</text>
+          <!-- sync line from merge#1 node straight down to Team B lane -->
+          <line x1="310" y1="60" x2="310" y2="238" stroke="#3fb950" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.55"/>
+          <circle cx="310" cy="238" r="4" fill="#3fb950"/>
+          <text x="314" y="233" fill="#484f58" font-family="Sora,sans-serif" font-size="8">sync</text>
+          <!-- conflict resolve -->
+          <circle cx="348" cy="238" r="5" fill="#ffd700" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="326" y="258" fill="#ffd700" font-family="Sora,sans-serif" font-size="8">resolve conflict</text>
+          <!-- PR badge -->
+          <rect x="358" y="229" width="52" height="16" rx="4" fill="rgba(88,166,255,0.18)" stroke="#58a6ff" stroke-width="1"/>
+          <text x="362" y="241" fill="#58a6ff" font-family="JetBrains Mono,monospace" font-size="8">PR review</text>
+          <!-- merge to develop -->
+          <line x1="410" y1="238" x2="460" y2="60" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <circle cx="460" cy="60" r="7" fill="#58a6ff" stroke="#3fb950" stroke-width="2.5"/>
+          <text x="446" y="49" fill="#58a6ff" font-family="Sora,sans-serif" font-size="9" font-weight="700">merge #2</text>
+
+          <!-- ══════════════════════════
+               TEAM C  (y=338)
+               branch@x=170 → merge@x=580
+          ══════════════════════════ -->
+          <circle cx="170" cy="60" r="5" fill="#3fb950"/>
+          <line x1="170" y1="60" x2="196" y2="338" stroke="#56d364" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <!-- feature commits up to first sync point -->
+          <line x1="196" y1="338" x2="300" y2="338" stroke="#56d364" stroke-width="2"/>
+          <circle cx="196" cy="338" r="5" fill="#56d364"/>
+          <circle cx="260" cy="338" r="5" fill="#56d364"/>
+          <text x="200" y="326" fill="#56d364" font-family="JetBrains Mono,monospace" font-size="8">feat commits</text>
+          <!-- sync 1: from merge#1 straight down -->
+          <line x1="310" y1="60" x2="310" y2="338" stroke="#3fb950" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.45"/>
+          <circle cx="310" cy="338" r="4" fill="#3fb950"/>
+          <text x="314" y="333" fill="#484f58" font-family="Sora,sans-serif" font-size="8">sync</text>
+          <!-- resolve conflict 1 -->
+          <circle cx="336" cy="338" r="5" fill="#ffd700" stroke="#56d364" stroke-width="1.5"/>
+          <text x="316" y="355" fill="#ffd700" font-family="Sora,sans-serif" font-size="8">resolve</text>
+          <!-- continue commits -->
+          <line x1="336" y1="338" x2="420" y2="338" stroke="#56d364" stroke-width="2"/>
+          <circle cx="380" cy="338" r="5" fill="#56d364"/>
+          <circle cx="420" cy="338" r="5" fill="#56d364"/>
+          <!-- sync 2: from merge#2 straight down -->
+          <line x1="460" y1="60" x2="460" y2="338" stroke="#3fb950" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.45"/>
+          <circle cx="460" cy="338" r="4" fill="#3fb950"/>
+          <text x="464" y="333" fill="#484f58" font-family="Sora,sans-serif" font-size="8">sync</text>
+          <!-- resolve conflict 2 -->
+          <circle cx="486" cy="338" r="5" fill="#ffd700" stroke="#56d364" stroke-width="1.5"/>
+          <text x="466" y="355" fill="#ffd700" font-family="Sora,sans-serif" font-size="8">resolve</text>
+          <!-- PR badge -->
+          <rect x="494" y="329" width="52" height="16" rx="4" fill="rgba(86,211,100,0.15)" stroke="#56d364" stroke-width="1"/>
+          <text x="498" y="341" fill="#56d364" font-family="JetBrains Mono,monospace" font-size="8">PR review</text>
+          <!-- merge to develop -->
+          <line x1="546" y1="338" x2="580" y2="60" stroke="#56d364" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <circle cx="580" cy="60" r="7" fill="#56d364" stroke="#3fb950" stroke-width="2.5"/>
+          <text x="566" y="49" fill="#56d364" font-family="Sora,sans-serif" font-size="9" font-weight="700">merge #3</text>
+
+          <!-- ══════════════════════════
+               RELEASE v1.0  (y=422)
+               created@x=618, UAT fix@x=740
+          ══════════════════════════ -->
+          <circle cx="618" cy="60" r="6" fill="#3fb950"/>
+          <!-- straight down to release lane -->
+          <line x1="618" y1="60" x2="618" y2="422" stroke="#f0883e" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <circle cx="618" cy="422" r="5" fill="#f0883e"/>
+          <!-- release line -->
+          <line x1="618" y1="422" x2="748" y2="422" stroke="#f0883e" stroke-width="2"/>
+          <circle cx="680" cy="422" r="5" fill="#f0883e"/>
+          <circle cx="748" cy="422" r="5" fill="#f0883e"/>
+          <text x="622" y="411" fill="#f0883e" font-family="JetBrains Mono,monospace" font-size="8">release/v1.0</text>
+          <text x="700" y="442" fill="#f0883e" font-family="Sora,sans-serif" font-size="8">fix: UAT bug</text>
+          <!-- UAT badge -->
+          <rect x="620" y="447" width="116" height="18" rx="5" fill="rgba(240,136,62,0.12)" stroke="rgba(240,136,62,0.4)" stroke-width="1"/>
+          <text x="648" y="460" fill="#f0883e" font-family="Sora,sans-serif" font-size="9">🧪 UAT Testing</text>
+
+          <!-- ══════════════════════════
+               RELEASE → MAIN
+          ══════════════════════════ -->
+          <line x1="748" y1="422" x2="808" y2="478" stroke="#f0883e" stroke-width="2" stroke-dasharray="4,3"/>
+          <circle cx="808" cy="478" r="8" fill="#ff5c5c" stroke="#ffd700" stroke-width="2"/>
+          <!-- tag -->
+          <rect x="820" y="469" width="38" height="16" rx="4" fill="#21262d" stroke="#ffd700" stroke-width="1"/>
+          <text x="824" y="481" fill="#ffd700" font-family="JetBrains Mono,monospace" font-size="9" font-weight="700">v1.0</text>
+          <!-- production badge -->
+          <rect x="760" y="492" width="96" height="18" rx="5" fill="rgba(255,92,92,0.12)" stroke="rgba(255,92,92,0.4)" stroke-width="1"/>
+          <text x="778" y="505" fill="#ff5c5c" font-family="Sora,sans-serif" font-size="9">🚀 Production</text>
+
+          <!-- ══════════════════════════
+               BACK-MERGE → develop
+          ══════════════════════════ -->
+          <line x1="808" y1="478" x2="870" y2="60" stroke="#f0883e" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.55"/>
+          <circle cx="870" cy="60" r="6" fill="#f0883e" stroke="#3fb950" stroke-width="2"/>
+          <text x="876" y="54" fill="#484f58" font-family="Sora,sans-serif" font-size="8">back-merge</text>
+
+          <!-- ══════════════════════════
+               LEGEND  — 2 rows
+          ══════════════════════════ -->
+          <!-- Row 1 -->
+          <rect x="73" y="516" width="900" height="18" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <circle cx="92"  cy="525" r="4" fill="#a371f7"/>
+          <text   x="100" y="529" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">Team A (Sales)</text>
+          <circle cx="196" cy="525" r="4" fill="#58a6ff"/>
+          <text   x="204" y="529" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">Team B (Customers)</text>
+          <circle cx="322" cy="525" r="4" fill="#56d364"/>
+          <text   x="330" y="529" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">Team C (Products)</text>
+          <circle cx="448" cy="525" r="4" fill="#ffd700"/>
+          <text   x="456" y="529" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">Conflict resolved</text>
+          <!-- Row 2 -->
+          <rect x="73" y="538" width="900" height="18" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <line  x1="85"  y1="547" x2="102" y2="547" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.7"/>
+          <text   x="106" y="551" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">sync from develop</text>
+          <line  x1="222" y1="547" x2="239" y2="547" stroke="#484f58" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text   x="243" y="551" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">back-merge</text>
+          <rect  x="332" y="540" width="30" height="13" rx="3" fill="#21262d" stroke="#ffd700" stroke-width="1"/>
+          <text   x="336" y="551" fill="#ffd700" font-family="JetBrains Mono,monospace" font-size="8" font-weight="700">v1.0</text>
+          <text   x="366" y="551" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">= release tag</text>
+          <circle cx="448" cy="547" r="5" fill="#f0883e" stroke="#3fb950" stroke-width="2"/>
+          <text   x="457" y="551" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">merge node on develop</text>
+        </svg>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-top:16px;">
+        <div class="alert info" style="margin:0;">
+          <div class="icon">1️⃣</div>
+          <div style="font-size:12px;" data-i18n="mt-note1"><strong>Teams δουλεύουν παράλληλα</strong> — ο καθένας στο δικό του branch, ανεξάρτητα από τους άλλους.</div>
+        </div>
+        <div class="alert warn" style="margin:0;">
+          <div class="icon">2️⃣</div>
+          <div style="font-size:12px;" data-i18n="mt-note2"><strong>Sync συχνά</strong> — Team B & C τραβούν το develop μετά από κάθε merge για να αποφύγουν μεγάλα conflicts.</div>
+        </div>
+        <div class="alert tip" style="margin:0;">
+          <div class="icon">3️⃣</div>
+          <div style="font-size:12px;" data-i18n="mt-note3"><strong>Release μετά από όλα τα merges</strong> — το release/v1.0 δημιουργείται μόλις και τα 3 teams έχουν κάνει merge στο develop.</div>
+        </div>
+      </div>
+
+      <!-- SECOND DIAGRAM -->
+      <h3 style="margin-top:36px; margin-bottom:6px;" data-i18n="mt2-title">🚀 Σενάριο: Release ενώ άλλα 2 Teams συνεχίζουν</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;" data-i18n="mt2-sub">Το Team A έχει ήδη κάνει merge και ο κώδικάς του πάει στην παραγωγή. Τα Teams B & C συνεχίζουν να δουλεύουν ταυτόχρονα στο develop — ανεπηρέαστα από το release.</p>
+
+      <div class="flow-diagram" style="padding:28px 20px;">
+        <svg viewBox="0 0 980 510" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:700px;">
+          <rect width="980" height="510" fill="#0d1117"/>
+
+          <!-- Week labels -->
+          <text x="111" y="18" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="10" text-anchor="middle">Week 1</text>
+          <text x="261" y="18" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="10" text-anchor="middle">Week 2</text>
+          <text x="411" y="18" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="10" text-anchor="middle">Week 3</text>
+          <text x="561" y="18" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="10" text-anchor="middle">Week 4</text>
+          <text x="711" y="18" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="10" text-anchor="middle">Week 5</text>
+          <text x="861" y="18" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="10" text-anchor="middle">Week 6</text>
+
+          <!-- Week dividers -->
+          <line x1="73"  y1="24" x2="73"  y2="458" stroke="#1c2128" stroke-width="1"/>
+          <line x1="223" y1="24" x2="223" y2="458" stroke="#1c2128" stroke-width="1"/>
+          <line x1="373" y1="24" x2="373" y2="458" stroke="#1c2128" stroke-width="1"/>
+          <line x1="523" y1="24" x2="523" y2="458" stroke="#1c2128" stroke-width="1"/>
+          <line x1="673" y1="24" x2="673" y2="458" stroke="#1c2128" stroke-width="1"/>
+          <line x1="823" y1="24" x2="823" y2="458" stroke="#1c2128" stroke-width="1"/>
+
+          <!-- Lane labels -->
+          <text x="8" y="64"  fill="#3fb950" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700">develop</text>
+          <text x="8" y="133" fill="#a371f7" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700">Team A</text>
+          <text x="8" y="146" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="8">✅ Done</text>
+          <text x="8" y="226" fill="#58a6ff" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700">Team B</text>
+          <text x="8" y="239" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="8">In progress</text>
+          <text x="8" y="318" fill="#56d364" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700">Team C</text>
+          <text x="8" y="331" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="8">In progress</text>
+          <text x="8" y="398" fill="#f0883e" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700">release</text>
+          <text x="8" y="411" fill="#484f58" font-family="JetBrains Mono,monospace" font-size="8">v1.0</text>
+          <text x="8" y="450" fill="#ff5c5c" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700">main</text>
+
+          <!-- Lane separators -->
+          <line x1="73" y1="98"  x2="975" y2="98"  stroke="#1c2128" stroke-width="1"/>
+          <line x1="73" y1="190" x2="975" y2="190" stroke="#1c2128" stroke-width="1"/>
+          <line x1="73" y1="280" x2="975" y2="280" stroke="#1c2128" stroke-width="1"/>
+          <line x1="73" y1="365" x2="975" y2="365" stroke="#1c2128" stroke-width="1"/>
+          <line x1="73" y1="428" x2="975" y2="428" stroke="#1c2128" stroke-width="1"/>
+
+          <!-- DEVELOP -->
+          <line x1="73" y1="58" x2="975" y2="58" stroke="#3fb950" stroke-width="2.5"/>
+          <!-- MAIN -->
+          <line x1="73" y1="445" x2="975" y2="445" stroke="#ff5c5c" stroke-width="2.5"/>
+
+          <!-- ── TEAM A (y=138) ── -->
+          <circle cx="90" cy="58" r="5" fill="#3fb950"/>
+          <line x1="90" y1="58" x2="108" y2="138" stroke="#a371f7" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="108" y1="138" x2="218" y2="138" stroke="#a371f7" stroke-width="2"/>
+          <circle cx="108" cy="138" r="5" fill="#a371f7"/>
+          <circle cx="163" cy="138" r="5" fill="#a371f7"/>
+          <circle cx="218" cy="138" r="5" fill="#a371f7"/>
+          <text x="128" y="127" fill="#a371f7" font-family="JetBrains Mono,monospace" font-size="8">feat commits</text>
+          <rect x="222" y="130" width="52" height="15" rx="4" fill="rgba(163,113,247,0.18)" stroke="#a371f7" stroke-width="1"/>
+          <text x="226" y="141" fill="#a371f7" font-family="JetBrains Mono,monospace" font-size="8">PR review</text>
+          <line x1="274" y1="138" x2="308" y2="58" stroke="#a371f7" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <circle cx="308" cy="58" r="7" fill="#a371f7" stroke="#3fb950" stroke-width="2.5"/>
+          <text x="294" y="47" fill="#a371f7" font-family="Sora,sans-serif" font-size="9" font-weight="700">merge #1</text>
+          <!-- Team A "done" note -->
+          <rect x="316" y="129" width="215" height="19" rx="4" fill="rgba(163,113,247,0.07)" stroke="rgba(163,113,247,0.2)" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="324" y="142" fill="#7d8590" font-family="Sora,sans-serif" font-size="8.5">✅ Team A delivered — starts next feature</text>
+
+          <!-- ── TEAM B (y=230) ── -->
+          <circle cx="128" cy="58" r="5" fill="#3fb950"/>
+          <line x1="128" y1="58" x2="148" y2="230" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="148" y1="230" x2="800" y2="230" stroke="#58a6ff" stroke-width="2"/>
+          <circle cx="148" cy="230" r="5" fill="#58a6ff"/>
+          <circle cx="280" cy="230" r="5" fill="#58a6ff"/>
+          <circle cx="430" cy="230" r="5" fill="#58a6ff"/>
+          <circle cx="580" cy="230" r="5" fill="#58a6ff"/>
+          <circle cx="730" cy="230" r="5" fill="#58a6ff"/>
+          <text x="160" y="220" fill="#58a6ff" font-family="JetBrains Mono,monospace" font-size="8">feat commits — still in progress...</text>
+          <!-- sync from merge#1 -->
+          <line x1="308" y1="58" x2="308" y2="230" stroke="#3fb950" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.5"/>
+          <circle cx="308" cy="230" r="4" fill="#3fb950"/>
+          <text x="312" y="225" fill="#484f58" font-family="Sora,sans-serif" font-size="8">sync</text>
+          <circle cx="334" cy="230" r="5" fill="#ffd700" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="340" y="225" fill="#ffd700" font-family="Sora,sans-serif" font-size="8">resolve</text>
+          <!-- still open -->
+          <text x="810" y="234" fill="#58a6ff" font-family="JetBrains Mono,monospace" font-size="9">→</text>
+          <rect x="76" y="248" width="118" height="13" rx="3" fill="rgba(88,166,255,0.08)" stroke="rgba(88,166,255,0.2)" stroke-width="1"/>
+          <text x="80" y="258" fill="#58a6ff" font-family="Sora,sans-serif" font-size="8">🔨 Still in development</text>
+
+          <!-- ── TEAM C (y=320) ── -->
+          <circle cx="165" cy="58" r="5" fill="#3fb950"/>
+          <line x1="165" y1="58" x2="188" y2="320" stroke="#56d364" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="188" y1="320" x2="800" y2="320" stroke="#56d364" stroke-width="2"/>
+          <circle cx="188" cy="320" r="5" fill="#56d364"/>
+          <circle cx="330" cy="320" r="5" fill="#56d364"/>
+          <circle cx="480" cy="320" r="5" fill="#56d364"/>
+          <circle cx="640" cy="320" r="5" fill="#56d364"/>
+          <text x="200" y="310" fill="#56d364" font-family="JetBrains Mono,monospace" font-size="8">feat commits — still in progress...</text>
+          <!-- sync from merge#1 -->
+          <line x1="308" y1="58" x2="308" y2="320" stroke="#3fb950" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.45"/>
+          <circle cx="308" cy="320" r="4" fill="#3fb950"/>
+          <text x="312" y="315" fill="#484f58" font-family="Sora,sans-serif" font-size="8">sync</text>
+          <circle cx="334" cy="320" r="5" fill="#ffd700" stroke="#56d364" stroke-width="1.5"/>
+          <text x="340" y="315" fill="#ffd700" font-family="Sora,sans-serif" font-size="8">resolve</text>
+          <!-- still open -->
+          <text x="810" y="324" fill="#56d364" font-family="JetBrains Mono,monospace" font-size="9">→</text>
+          <rect x="76" y="337" width="118" height="13" rx="3" fill="rgba(86,211,100,0.08)" stroke="rgba(86,211,100,0.2)" stroke-width="1"/>
+          <text x="80" y="347" fill="#56d364" font-family="Sora,sans-serif" font-size="8">🔨 Still in development</text>
+
+          <!-- ── RELEASE v1.0 (y=393) ── -->
+          <circle cx="338" cy="58" r="6" fill="#3fb950"/>
+          <line x1="338" y1="58" x2="338" y2="393" stroke="#f0883e" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <circle cx="338" cy="393" r="5" fill="#f0883e"/>
+          <line x1="338" y1="393" x2="560" y2="393" stroke="#f0883e" stroke-width="2"/>
+          <circle cx="440" cy="393" r="5" fill="#f0883e"/>
+          <circle cx="560" cy="393" r="5" fill="#f0883e"/>
+          <text x="342" y="383" fill="#f0883e" font-family="JetBrains Mono,monospace" font-size="8">release/v1.0  (Team A features only)</text>
+          <text x="468" y="411" fill="#f0883e" font-family="Sora,sans-serif" font-size="8">fix: UAT bug</text>
+          <rect x="340" y="415" width="112" height="16" rx="5" fill="rgba(240,136,62,0.12)" stroke="rgba(240,136,62,0.4)" stroke-width="1"/>
+          <text x="366" y="427" fill="#f0883e" font-family="Sora,sans-serif" font-size="9">🧪 UAT Testing</text>
+
+          <!-- callout: B & C not in this release -->
+          <rect x="572" y="378" width="232" height="36" rx="6" fill="rgba(255,92,92,0.07)" stroke="rgba(255,92,92,0.3)" stroke-width="1"/>
+          <text x="582" y="393" fill="#ff8080" font-family="Sora,sans-serif" font-size="9" font-weight="700">⚠️ Teams B &amp; C are NOT in this release</text>
+          <text x="582" y="407" fill="#7d8590" font-family="Sora,sans-serif" font-size="8">They will ship in v1.1</text>
+
+          <!-- release → main -->
+          <line x1="560" y1="393" x2="628" y2="445" stroke="#f0883e" stroke-width="2" stroke-dasharray="4,3"/>
+          <circle cx="628" cy="445" r="8" fill="#ff5c5c" stroke="#ffd700" stroke-width="2"/>
+          <rect x="640" y="436" width="38" height="16" rx="4" fill="#21262d" stroke="#ffd700" stroke-width="1"/>
+          <text x="644" y="448" fill="#ffd700" font-family="JetBrains Mono,monospace" font-size="9" font-weight="700">v1.0</text>
+          <rect x="586" y="458" width="96" height="16" rx="5" fill="rgba(255,92,92,0.12)" stroke="rgba(255,92,92,0.4)" stroke-width="1"/>
+          <text x="604" y="470" fill="#ff5c5c" font-family="Sora,sans-serif" font-size="9">🚀 Production</text>
+
+          <!-- back-merge → develop -->
+          <line x1="628" y1="445" x2="710" y2="58" stroke="#f0883e" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+          <circle cx="710" cy="58" r="6" fill="#f0883e" stroke="#3fb950" stroke-width="2"/>
+          <text x="716" y="52" fill="#484f58" font-family="Sora,sans-serif" font-size="8">back-merge</text>
+
+          <!-- sync B & C from back-merge -->
+          <line x1="710" y1="58" x2="710" y2="230" stroke="#3fb950" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.45"/>
+          <circle cx="710" cy="230" r="4" fill="#3fb950"/>
+          <text x="714" y="225" fill="#484f58" font-family="Sora,sans-serif" font-size="8">sync</text>
+          <line x1="710" y1="58" x2="710" y2="320" stroke="#3fb950" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.35"/>
+          <circle cx="710" cy="320" r="4" fill="#3fb950"/>
+          <text x="714" y="315" fill="#484f58" font-family="Sora,sans-serif" font-size="8">sync</text>
+
+          <!-- LEGEND row 1 -->
+          <rect x="73" y="480" width="900" height="16" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+          <circle cx="90"  cy="488" r="4" fill="#a371f7"/>
+          <text   x="98"  y="492" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">Team A — delivered</text>
+          <circle cx="210" cy="488" r="4" fill="#58a6ff"/>
+          <text   x="218" y="492" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">Team B — in progress</text>
+          <circle cx="340" cy="488" r="4" fill="#56d364"/>
+          <text   x="348" y="492" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">Team C — in progress</text>
+          <circle cx="470" cy="488" r="4" fill="#ffd700"/>
+          <text   x="478" y="492" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">conflict resolved</text>
+          <line  x1="575" y1="488" x2="592" y2="488" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.7"/>
+          <text   x="596" y="492" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">sync from develop</text>
+          <line  x1="694" y1="488" x2="711" y2="488" stroke="#484f58" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text   x="715" y="492" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">back-merge</text>
+          <rect  x="803" y="481" width="30" height="13" rx="3" fill="#21262d" stroke="#ffd700" stroke-width="1"/>
+          <text   x="807" y="492" fill="#ffd700" font-family="JetBrains Mono,monospace" font-size="8" font-weight="700">v1.0</text>
+          <text   x="837" y="492" fill="#7d8590" font-family="Sora,sans-serif" font-size="9">= tag</text>
+        </svg>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-top:16px;">
+        <div class="alert info" style="margin:0;">
+          <div class="icon">🔑</div>
+          <div style="font-size:12px;" data-i18n="mt2-note1"><strong>Release ≠ όλα τα features</strong> — Το v1.0 περιέχει μόνο ό,τι έχει κάνει merge στο develop. Teams B & C θα μπουν στο v1.1.</div>
+        </div>
+        <div class="alert warn" style="margin:0;">
+          <div class="icon">⚙️</div>
+          <div style="font-size:12px;" data-i18n="mt2-note2"><strong>Τα B & C δεν σταματούν</strong> — Συνεχίζουν να δουλεύουν ανεπηρέαστα. Το release δεν τους αγγίζει.</div>
+        </div>
+        <div class="alert tip" style="margin:0;">
+          <div class="icon">🔄</div>
+          <div style="font-size:12px;" data-i18n="mt2-note3"><strong>Back-merge στα B & C</strong> — Μετά το deployment, το bugfix του UAT πηγαίνει πίσω στο develop και τα B & C το παίρνουν με sync.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. RULES & MISTAKES -->
+<section id="rules" id="mistakes">
+  <div class="container">
+    <h2><span class="num">10</span> <span data-i18n="s8-title">Κανόνες & Κοινά Λάθη</span></h2>
+    <p class="section-sub" data-i18n="s8-sub">Κάθε κανόνας αντιστοιχεί σε ένα πραγματικό λάθος που γίνεται στην πράξη. Εδώ έχεις και τον κανόνα και τη λύση αν τον παραβείς.</p>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); gap:16px;">
+
+      <div class="rule-card" style="position:relative; overflow:hidden;">
+        <div class="rule-num">01</div>
+        <h4 data-i18n="rule1-title">🚫 Ποτέ commit απευθείας στο main</h4>
+        <p data-i18n="rule1-body" style="margin-bottom:12px;">Το main = παραγωγή. Κάθε αλλαγή πρέπει να περάσει από review και testing. Ακόμα και αν είσαι ο μόνος developer.</p>
+        <div style="background:rgba(63,185,80,0.08); border:1px solid rgba(63,185,80,0.2); border-radius:6px; padding:10px;">
+          <p style="font-size:12px; color:var(--develop);" data-i18n="cm-m1-fix">✅ <strong>Λύση:</strong> Πάντα <code>git checkout -b feature/xxx</code> πριν γράψεις οτιδήποτε.</p>
+        </div>
+      </div>
+
+      <div class="rule-card" style="position:relative; overflow:hidden;">
+        <div class="rule-num">02</div>
+        <h4 data-i18n="rule2-title">🚫 Ποτέ commit απευθείας στο develop</h4>
+        <p data-i18n="rule2-body" style="margin-bottom:12px;">Το develop είναι integration branch. Αλλαγές μπαίνουν μόνο μέσω Pull Requests από feature/release/hotfix branches.</p>
+        <div style="background:rgba(63,185,80,0.08); border:1px solid rgba(63,185,80,0.2); border-radius:6px; padding:10px;">
+          <p style="font-size:12px; color:var(--develop);" data-i18n="rule2-fix">✅ <strong>Λύση:</strong> Ανοίγεις feature branch, κάνεις PR, περιμένεις review.</p>
+        </div>
+      </div>
+
+      <div class="rule-card" style="position:relative; overflow:hidden;">
+        <div class="rule-num">03</div>
+        <h4 data-i18n="rule3-title">⚠️ Πάντα back-merge από release/hotfix</h4>
+        <p data-i18n="rule3-body" style="margin-bottom:12px;">Μετά από κάθε release ή hotfix, κάνε merge και στο develop. Αλλιώς τα bugfixes θα χαθούν και θα ξαναεμφανιστούν!</p>
+        <div style="background:rgba(63,185,80,0.08); border:1px solid rgba(63,185,80,0.2); border-radius:6px; padding:10px;">
+          <p style="font-size:12px; color:var(--develop);" data-i18n="cm-m2-fix">✅ <strong>Λύση:</strong> Κάνε το back-merge αμέσως μετά το merge στο main — μην το αφήνεις για αργότερα.</p>
+        </div>
+      </div>
+
+      <div class="rule-card" style="position:relative; overflow:hidden;">
+        <div class="rule-num">04</div>
+        <h4 data-i18n="rule4-title">🏷️ Πάντα tag στο main μετά από release</h4>
+        <p data-i18n="rule4-body" style="margin-bottom:12px;">Τα tags είναι σαν "φωτογραφίες" της παραγωγής. Σε βοηθούν να γυρίσεις σε οποιοδήποτε release αν χρειαστεί.</p>
+        <div style="background:rgba(63,185,80,0.08); border:1px solid rgba(63,185,80,0.2); border-radius:6px; padding:10px;">
+          <p style="font-size:12px; color:var(--develop);" data-i18n="rule4-fix">✅ <strong>Λύση:</strong> <code>git tag -a v1.x -m "..."</code> αμέσως μετά το merge στο main.</p>
+        </div>
+      </div>
+
+      <div class="rule-card" style="position:relative; overflow:hidden;">
+        <div class="rule-num">05</div>
+        <h4 data-i18n="rule5-title">🔄 Sync συχνά με το develop</h4>
+        <p data-i18n="rule5-body" style="margin-bottom:12px;">Ανοίγεις branch, δουλεύεις για εβδομάδες χωρίς sync. Αποτέλεσμα: τεράστια conflicts όταν έρθει η ώρα του merge.</p>
+        <div style="background:rgba(63,185,80,0.08); border:1px solid rgba(63,185,80,0.2); border-radius:6px; padding:10px;">
+          <p style="font-size:12px; color:var(--develop);" data-i18n="cm-m3-fix">✅ <strong>Λύση:</strong> <code>git merge develop</code> στο feature branch σου κάθε 1-2 μέρες.</p>
+        </div>
+      </div>
+
+      <div class="rule-card" style="position:relative; overflow:hidden;">
+        <div class="rule-num">06</div>
+        <h4 data-i18n="rule6-title">📝 Descriptive commit messages</h4>
+        <p data-i18n="rule6-body" style="margin-bottom:12px;">Χρησιμοποίησε conventional commits. Ένα "fix stuff" δεν λέει τίποτα σε κανέναν — ούτε σε σένα 3 μήνες μετά.</p>
+        <div style="background:rgba(63,185,80,0.08); border:1px solid rgba(63,185,80,0.2); border-radius:6px; padding:10px;">
+          <p style="font-size:12px; color:var(--develop);" data-i18n="rule6-fix">✅ <strong>Λύση:</strong> <code>feat(etl): add sales logic</code> αντί για <code>changes</code>.</p>
+        </div>
+      </div>
+
+      <div class="rule-card" style="position:relative; overflow:hidden;">
+        <div class="rule-num">07</div>
+        <h4 data-i18n="cm-m4-title">💥 git push --force</h4>
+        <p data-i18n="cm-m4-body" style="margin-bottom:12px;">Το force push ξεγράφει ιστορία στο remote. Αν το κάνεις σε shared branch, σβήνεις δουλειά συναδέλφων.</p>
+        <div style="background:rgba(63,185,80,0.08); border:1px solid rgba(63,185,80,0.2); border-radius:6px; padding:10px;">
+          <p style="font-size:12px; color:var(--develop);" data-i18n="cm-m4-fix">✅ <strong>Λύση:</strong> Ποτέ <code>--force</code> σε develop/main/release. Μόνο σε personal feature branches αν είναι απαραίτητο.</p>
+        </div>
+      </div>
+
+      <div class="rule-card" style="position:relative; overflow:hidden;">
+        <div class="rule-num">08</div>
+        <h4 data-i18n="cm-m5-title">🔑 Commit passwords ή API keys</h4>
+        <p data-i18n="cm-m5-body" style="margin-bottom:12px;">Ανεβάζεις αρχείο config με credentials. Μόλις πάει στο remote, είναι εκτεθειμένο — ακόμα και αν το διαγράψεις μετά.</p>
+        <div style="background:rgba(63,185,80,0.08); border:1px solid rgba(63,185,80,0.2); border-radius:6px; padding:10px;">
+          <p style="font-size:12px; color:var(--develop);" data-i18n="cm-m5-fix">✅ <strong>Λύση:</strong> Χρησιμοποίησε <code>.gitignore</code> για config files. Αν ανέβηκε ήδη, άλλαξε αμέσως τα credentials.</p>
+        </div>
+      </div>
+
+      <div class="rule-card" style="position:relative; overflow:hidden;">
+        <div class="rule-num">09</div>
+        <h4 data-i18n="cm-m6-title">🚧 Νέα features στο release branch</h4>
+        <p data-i18n="cm-m6-body" style="margin-bottom:12px;">Ενώ το release είναι ανοιχτό για UAT, προσθέτεις νέα λειτουργικότητα αντί για μόνο bugfixes.</p>
+        <div style="background:rgba(63,185,80,0.08); border:1px solid rgba(63,185,80,0.2); border-radius:6px; padding:10px;">
+          <p style="font-size:12px; color:var(--develop);" data-i18n="cm-m6-fix">✅ <strong>Λύση:</strong> Το release branch δέχεται μόνο fix/docs/chore. Νέο feature → επόμενο release.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Quick Reference -->
+    <div class="card" style="margin-top:32px; border-color:var(--gold); background:rgba(255,215,0,0.03);">
+      <h3 style="color:var(--gold); margin-bottom:20px;" data-i18n="qr-title">⚡ Quick Reference — Τι κάνω αν...</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div>
+          <div style="font-size:13px; margin-bottom:12px;">
+            <span data-i18n="qr-new-task"><strong style="color:var(--feature);">Ξεκινάω νέα εργασία:</strong></span><br>
+            <span style="color:var(--text-muted); font-size:12px;">develop → feature/xxx → PR → develop</span>
+          </div>
+          <div style="font-size:13px; margin-bottom:12px;">
+            <span data-i18n="qr-release"><strong style="color:var(--release);">Ετοιμάζω release:</strong></span><br>
+            <span style="color:var(--text-muted); font-size:12px;">develop → release/vX.Y → UAT → main+develop</span>
+          </div>
+          <div style="font-size:13px; margin-bottom:12px;">
+            <span data-i18n="qr-prod-bug"><strong style="color:var(--hotfix);">Βρήκα bug στην παραγωγή:</strong></span><br>
+            <span style="color:var(--text-muted); font-size:12px;">main → hotfix/xxx → main+develop+release</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:13px; margin-bottom:12px;">
+            <span data-i18n="qr-conflict"><strong style="color:var(--accent);">Υπάρχει conflict:</strong></span><br>
+            <span style="color:var(--text-muted); font-size:12px;">pull develop → merge develop στο feature → resolve → push</span>
+          </div>
+          <div style="font-size:13px; margin-bottom:12px;">
+            <span data-i18n="qr-forgot"><strong style="color:var(--develop);">Ξέχασα back-merge:</strong></span><br>
+            <span style="color:var(--text-muted); font-size:12px;" data-i18n="qr-forgot-desc">Κάνε το τώρα — checkout develop, merge release/hotfix, push</span>
+          </div>
+          <div style="font-size:13px; margin-bottom:12px;">
+            <span data-i18n="qr-history"><strong style="color:var(--gold);">Θέλω να δω την ιστορία:</strong></span><br>
+            <span style="color:var(--text-muted); font-size:12px;"><code style="font-size:11px;">git log --oneline --graph --all</code></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Useful extra commands -->
+    <div class="card" style="margin-top:24px;">
+      <h3 style="margin-bottom:16px;" data-i18n="extra-title">🛠️ Χρήσιμες Επιπλέον Εντολές</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> <span data-i18n="cb-header-extra">Handy Git Commands</span></div>
+        <pre id="code-extra"><span class="cmd-comment"># Δες όλα τα branches (local + remote)</span>
+<span class="cmd-git">git</span> branch <span class="cmd-arg">-a</span>
+
+<span class="cmd-comment"># Δες το log γραφικά</span>
+<span class="cmd-git">git</span> log <span class="cmd-arg">--oneline --graph --all</span>
+
+<span class="cmd-comment"># Δες τι αλλαγές έχεις κάνει</span>
+<span class="cmd-git">git</span> status
+<span class="cmd-git">git</span> diff
+
+<span class="cmd-comment"># Αναίρεσε αλλαγές σε ένα αρχείο (πριν commit)</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-arg">--</span> <span class="cmd-msg">filename.sql</span>
+
+<span class="cmd-comment"># Δες ποια tags υπάρχουν (releases)</span>
+<span class="cmd-git">git</span> tag <span class="cmd-arg">-l</span>
+
+<span class="cmd-comment"># Ποιος άλλαξε τι σε ένα αρχείο;</span>
+<span class="cmd-git">git</span> blame <span class="cmd-msg">sales_etl.sql</span>
+
+<span class="cmd-comment"># Γύρνα σε μια προηγούμενη έκδοση (tag)</span>
+<span class="cmd-git">git</span> checkout <span class="cmd-tag">v1.0</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="padding: 20px; border-top: 1px solid var(--border);"></footer>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    document.documentElement.lang = 'en';
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (translations[key]) el.innerHTML = translations[key]['en'];
+    });
+    document.querySelectorAll('nav a[data-el]').forEach(el => {
+      el.textContent = el.getAttribute('data-en');
+    });
+    translateCodeBlocks('en');
+  });
+
+  // ── TRANSLATION SYSTEM ──
+  let currentLang = 'en';
+
+  const translations = {
+    // Header
+    'h1-suffix':       { el: 'Εγχειρίδιο',      en: 'Manual' },
+    'header-sub':      { el: 'Ο πλήρης οδηγός για Git branching — από το πρώτο feature έως την παραγωγή.', en: 'The complete guide to Git branching — from the first feature to production.' },
+
+    // Section 1 – Intro
+    's1-title':        { el: 'Τι είναι το Git & Γιατί το Χρειαζόμαστε', en: 'What is Git & Why We Need It' },
+    's1-sub':          { el: 'Η βάση — τι κάνει το Git και τι πρόβλημα λύνει στην ομαδική ανάπτυξη.', en: 'The basics — what Git does and what problem it solves in team development.' },
+    's1-card-title':   { el: '🤔 Φαντάσου το εξής', en: '🤔 Imagine This' },
+    's1-card-body':    { el: 'Έχεις ένα αρχείο <code style="color:var(--accent); background:rgba(88,166,255,0.1); padding:1px 6px; border-radius:3px;">sales_etl.sql</code> και δουλεύεις σε αυτό με 3 συναδέλφους ταυτόχρονα. Χωρίς Git, ο ένας κάνει override τον άλλο. Με Git, κάθε αλλαγή καταγράφεται, η ιστορία διατηρείται, και μπορείς να επιστρέψεις σε οποιοδήποτε σημείο στο παρελθόν.', en: 'You have a file <code style="color:var(--accent); background:rgba(88,166,255,0.1); padding:1px 6px; border-radius:3px;">sales_etl.sql</code> and you\'re working on it with 3 colleagues simultaneously. Without Git, one overrides the other. With Git, every change is recorded, the history is preserved, and you can return to any point in the past.' },
+    's1-snap-title':   { el: 'Snapshot', en: 'Snapshot' },
+    's1-snap-body':    { el: 'Κάθε commit είναι μια "φωτογραφία" του κώδικα σε εκείνη τη στιγμή. Μπορείς πάντα να γυρίσεις πίσω.', en: 'Every commit is a "photograph" of the code at that moment. You can always go back.' },
+    's1-branch-title': { el: 'Branch (Κλάδος)', en: 'Branch' },
+    's1-branch-body':  { el: 'Δουλεύεις απομονωμένα. Ό,τι κάνεις σε ένα branch δεν επηρεάζει τους άλλους μέχρι να κάνεις merge.', en: 'You work in isolation. What you do in a branch does not affect others until you merge.' },
+    's1-merge-title':  { el: 'Merge', en: 'Merge' },
+    's1-merge-body':   { el: 'Ενώνεις δύο branches. Αν υπάρχουν conflicting αλλαγές, το Git σε ρωτάει τι να κρατήσει.', en: 'You join two branches. If there are conflicting changes, Git asks you what to keep.' },
+    's1-remote-title': { el: 'Remote (π.χ. GitHub)', en: 'Remote (e.g. GitHub)' },
+    's1-remote-body':  { el: 'Ο "κεντρικός server" που κρατάει τον κώδικα. Κάνεις push για να ανεβάσεις, pull για να κατεβάσεις.', en: 'The "central server" that holds the code. You push to upload, pull to download.' },
+    's1-alert':        { el: '<strong>Gitflow = Στρατηγική</strong> Το Gitflow δεν είναι εργαλείο — είναι μια συμφωνία για το πώς θα χρησιμοποιούμε το Git. Ορίζει ποια branches υπάρχουν, από πού ξεκινάνε και πού καταλήγουν.', en: '<strong>Gitflow = Branching Model Strategy</strong> Gitflow is not a tool — it is an agreement on how we will use Git. It defines which branches exist, where they start and where they end.' },
+
+    // Section 2 – Branches
+    's2-title':        { el: 'Τα 5 Branches & Ο Ρόλος τους', en: 'The 5 Branches & Their Role' },
+    's2-sub':          { el: 'Κάθε branch έχει έναν συγκεκριμένο σκοπό. Δεν τα αγγίζουμε "όπως μας βολεύει".', en: 'Every branch has a specific purpose. We don\'t touch them "however we like".' },
+    's2-main-body':    { el: 'Ο κώδικας που τρέχει <strong>LIVE</strong> στην παραγωγή. Ποτέ δεν αγγίζεται απευθείας. Μόνο δέχεται merges από release ή hotfix.', en: 'The code that runs <strong>LIVE</strong> in production. Never touched directly. Only accepts merges from release or hotfix.' },
+    's2-develop-body': { el: 'Ο "κόμβος" ανάπτυξης. Εδώ μαζεύονται όλα τα features. Ποτέ δεν γράφουμε απευθείας — δεχόμαστε μόνο merges από features, releases, hotfixes.', en: 'The development "hub". All features are collected here. We never write directly — only accept merges from features, releases, hotfixes.' },
+    's2-feature-body': { el: 'Εδώ γράφουμε κώδικα. Ξεκινά από το develop, τελειώνει στο develop. Κάθε task = ένα feature branch.', en: 'This is where we write code. Starts from develop, ends at develop. Each task = one feature branch.' },
+    's2-release-body': { el: 'Προετοιμασία για deployment. Μόνο bugfixes, όχι νέα features. Πηγαίνει για UAT testing.', en: 'Preparation for deployment. Bugfixes only, no new features. Goes for UAT testing.' },
+    's2-hotfix-body':  { el: 'Επείγουσα διόρθωση στην παραγωγή. Ξεκινά από το main, γυρίζει στο main ΚΑΙ στο develop.', en: 'Emergency fix in production. Starts from main, returns to main AND to develop.' },
+    's2-tag-feature':  { el: 'ξεκινά από: develop', en: 'starts from: develop' },
+    's2-tag-release':  { el: 'ξεκινά από: develop', en: 'starts from: develop' },
+    's2-tag-hotfix':   { el: 'ξεκινά από: main', en: 'starts from: main' },
+    's2-version-title':{ el: '🔢 Σημείωση: Τι σημαίνουν οι αριθμοί στα releases (v1.0, v1.1, v1.0.1…)', en: '🔢 Note: What the numbers mean in releases (v1.0, v1.1, v1.0.1…)' },
+    's2-version-body': { el: 'Οι αριθμοί λειτουργούν ως απλό σύστημα αναφοράς για να ξέρει η ομάδα τι ανέβηκε και πότε. Η λογική είναι:', en: 'The numbers work as a simple reference system so the team knows what was deployed and when. The logic is:' },
+    's2-version-foot': { el: 'Σύνοψη: <em>ο μεσαίος αριθμός αυξάνεται για κάθε νέο release, ο τελευταίος για κάθε hotfix πάνω σε αυτό.</em>', en: 'Summary: <em>the middle number increments for each new release, the last one for each hotfix on top of it.</em>' },
+    'ver-v10':         { el: 'Πρώτο release στην παραγωγή', en: 'First release to production' },
+    'ver-v11':         { el: 'Νέο release με features (ο μεσαίος αριθμός αυξάνεται)', en: 'New release with features (middle number increments)' },
+    'ver-v12':         { el: 'Επόμενο release με features', en: 'Next release with features' },
+    'ver-v101':        { el: 'Hotfix του release v1.0 (ο τελευταίος αριθμός αυξάνεται)', en: 'Hotfix of release v1.0 (last number increments)' },
+    'ver-v111':        { el: 'Hotfix του release v1.1', en: 'Hotfix of release v1.1' },
+
+    // Section 3 – Environments
+    's3-title':        { el: 'Τα 3 Περιβάλλοντα: DEV → UAT → PROD', en: 'The 3 Environments: DEV → UAT → PROD' },
+    's3-sub':          { el: 'Ο κώδικας δεν πηγαίνει ποτέ κατευθείαν στην παραγωγή. Περνά από 3 στάδια ελέγχου.', en: 'Code never goes directly to production. It goes through 3 stages of control.' },
+    's3-dev-body':     { el: 'Το περιβάλλον του developer. Εδώ γράφεις και δοκιμάζεις. Αντιστοιχεί στο <span style="color:var(--feature); font-family:\'JetBrains Mono\',monospace; font-size:12px">feature/*</span> branch.', en: 'The developer\'s environment. This is where you write and test. Corresponds to merges of <span style="color:var(--feature); font-family:\'JetBrains Mono\',monospace; font-size:12px">develop</span> branch.' },
+    's3-uat-body':     { el: 'User Acceptance Testing. Οι business users ελέγχουν ότι λειτουργεί σωστά. Αντιστοιχεί στο <span style="color:var(--release); font-family:\'JetBrains Mono\',monospace; font-size:12px">release/*</span> branch.', en: 'User Acceptance Testing. Business users verify it works correctly. Corresponds to merges of <span style="color:var(--release); font-family:\'JetBrains Mono\',monospace; font-size:12px">release/*</span> branch.' },
+    's3-prod-body':    { el: 'Live περιβάλλον. Αγγίζεται μόνο μετά από έγκριση UAT. Αντιστοιχεί στο <span style="color:var(--main); font-family:\'JetBrains Mono\',monospace; font-size:12px">main</span> branch.', en: 'Live environment. Touched only after UAT approval. Corresponds to merges of <span style="color:var(--main); font-family:\'JetBrains Mono\',monospace; font-size:12px">main</span> branch.' },
+    's3-alert':        { el: '<strong>Γιατί 3 περιβάλλοντα;</strong> Αν κάτι "σπάσει" στο DEV, δεν επηρεάζει τους χρήστες. Αν κάτι δεν αρέσει στο UAT, δεν φτάνει στην παραγωγή. Τα στρώματα ελέγχου προστατεύουν το LIVE σύστημα.', en: '<strong>Why 3 environments?</strong> If something "breaks" in DEV, it doesn\'t affect users. If something is not approved in UAT, it doesn\'t reach production. The control layers protect the LIVE system.' },
+
+    // Section 4 – Diagram
+    's4-title':        { el: 'Το Πλήρες Διάγραμμα Gitflow', en: 'The Complete Gitflow Diagram' },
+    's4-sub':          { el: 'Η οπτική αναπαράσταση όλων των branches και πώς συνδέονται μεταξύ τους.', en: 'The visual representation of all branches and how they connect to each other.' },
+    's4-alert':        { el: '<strong>Πώς να διαβάσεις το διάγραμμα</strong> Οι γραμμές αριστερά→δεξιά δείχνουν την πρόοδο του χρόνου. Κάθε κύκλος = ένα commit. Οι διακεκομμένες γραμμές = merges μεταξύ branches. Τα χρυσά tags (v1.0, v1.0.1) δείχνουν releases στην παραγωγή.', en: '<strong>How to read the diagram</strong> Lines left→right show the progress of time. Each circle = one commit. Dashed lines = merges between branches. Gold tags (v1.0, v1.0.1) show production releases.' },
+
+    // Section 5 – Scenarios tabs
+    'stab1':           { el: '📦 Σενάριο 1', en: '📦 Scenario 1' },
+    'stab2':           { el: '🧪 Σενάριο 2', en: '🧪 Scenario 2' },
+    'stab3':           { el: '🚀 Σενάριο 3', en: '🚀 Scenario 3' },
+    'stab4':           { el: '⚔️ Σενάριο 4', en: '⚔️ Scenario 4' },
+    'stab5':           { el: '🔥 Σενάριο 5', en: '🔥 Scenario 5' },
+    's5-title':        { el: 'Τα 5 Βασικά Σενάρια', en: 'The 5 Key Scenarios' },
+    's5-sub':          { el: 'Βήμα-βήμα οδηγίες για κάθε περίπτωση που θα συναντήσεις στην καθημερινότητα.', en: 'Step-by-step instructions for every situation you will encounter in daily work.' },
+    // S1
+    'sc1-h3':          { el: '📦 Καθημερινή Ανάπτυξη — Feature Branch', en: '📦 Daily Development — Feature Branch' },
+    'sc1-desc':        { el: 'Όταν ξεκινάς μια νέα εργασία (π.χ. ένα νέο ETL Job ή SQL transformation).', en: 'When you start a new task (e.g. a new ETL Job or SQL transformation).' },
+    'sc1-step1l':      { el: 'Πήγαινε στο develop', en: 'Go to develop' },
+    'sc1-step1d':      { el: 'Πάντα ξεκινάς από εκεί', en: 'Always start from there' },
+    'sc1-step2l':      { el: 'Ενημέρωσε τον τοπικό κώδικα', en: 'Update local code' },
+    'sc1-step2d':      { el: 'Κατέβασε τις τελευταίες αλλαγές', en: 'Download the latest changes' },
+    'sc1-step3l':      { el: 'Δημιούργησε το feature branch', en: 'Create the feature branch' },
+    'sc1-step3d':      { el: 'Δουλεύεις απομονωμένος', en: 'You work in isolation' },
+    'sc1-step4l':      { el: 'Γράψε κώδικα & κάνε commits', en: 'Write code & make commits' },
+    'sc1-step4d':      { el: 'Μικρά, συχνά, descriptive commits', en: 'Small, frequent, descriptive commits' },
+    'sc1-step5l':      { el: 'Push & Pull Request', en: 'Push & Pull Request' },
+    'sc1-step5d':      { el: 'Ανέβασε και ζήτα code review', en: 'Push up and request a code review' },
+    'sc1-step6l':      { el: 'Merge & Καθαρισμός', en: 'Merge & Cleanup' },
+    'sc1-step6d':      { el: 'Μετά την έγκριση, διέγραψε το feature branch', en: 'After approval, delete the feature branch' },
+    'sc1-tip':         { el: '<strong>Καλή πρακτική:</strong> Ένα feature branch = μία εργασία. Μην βάζεις άσχετα πράγματα στο ίδιο branch.', en: '<strong>Best practice:</strong> One feature branch = one task. Don\'t mix unrelated work in the same branch.' },
+    // S2
+    'sc2-h3':          { el: '🧪 Προετοιμασία Release & Bug στο UAT', en: '🧪 Release Preparation & Bug in UAT' },
+    'sc2-desc':        { el: 'Όταν μαζεύεις τα features για να τα πας για έλεγχο. Εδώ δεν υπάρχουν νέα features — μόνο bugfixes.', en: 'When you gather features to send for review. No new features here — bugfixes only.' },
+    'sc2-step1l':      { el: 'Πήγαινε στο develop & ενημερώσου', en: 'Go to develop & update' },
+    'sc2-step1d':      { el: 'Κατέβασε όλα τα merged features', en: 'Download all merged features' },
+    'sc2-step2l':      { el: 'Δημιούργησε το release branch', en: 'Create the release branch' },
+    'sc2-step2d':      { el: 'Αυτό θα πάει για UAT testing', en: 'This will go for UAT testing' },
+    'sc2-step3l':      { el: 'Βρέθηκε bug στο UAT; Διόρθωσε εδώ', en: 'Bug found in UAT? Fix it here' },
+    'sc2-step3d':      { el: 'Απευθείας στο release branch — ΜΟΝΟ bugfixes', en: 'Directly in the release branch — bugfixes ONLY' },
+    'sc2-step4l':      { el: 'Push & πέρνα για re-testing', en: 'Push & send for re-testing' },
+    'sc2-step4d':      { el: 'Στείλε ξανά στο UAT για επαλήθευση', en: 'Send back to UAT for verification' },
+    'sc2-warn':        { el: '<strong>Κανόνας:</strong> Στο release branch ΔΕΝ βάζεις νέα features. Μόνο bugfixes, docs, και μικρές διορθώσεις. Αν θέλεις νέο feature, πηγαίνει στο επόμενο release.', en: '<strong>Rule:</strong> You do NOT add new features to the release branch. Only bugfixes, docs, and minor corrections. If you want a new feature, it goes into the next release.' },
+    // S3
+    'sc3-h3':          { el: '🚀 Ολοκλήρωση Release — Deployment στην Παραγωγή', en: '🚀 Release Completion — Deployment to Production' },
+    'sc3-desc':        { el: 'Το UAT έδωσε "ΟΚ". Πάμε παραγωγή! Αυτό είναι το πιο κρίσιμο βήμα — ακολούθα με ακρίβεια.', en: 'UAT gave the "OK". Let\'s go to production! This is the most critical step — follow it precisely.' },
+    'sc3-step1l':      { el: 'Merge στο main (Live)', en: 'Merge to main (Live)' },
+    'sc3-step1d':      { el: 'Αυτό βάζει τον κώδικα στην παραγωγή', en: 'This puts the code into production' },
+    'sc3-step2l':      { el: 'Tag (Σφραγίδα της έκδοσης)', en: 'Tag (Version stamp)' },
+    'sc3-step2d':      { el: 'Σηματοδοτεί το release — π.χ. v1.0', en: 'Marks the release — e.g. v1.0' },
+    'sc3-step3l':      { el: 'Back-merge στο develop ⚠️ ΚΡΙΣΙΜΟ', en: 'Back-merge to develop ⚠️ CRITICAL' },
+    'sc3-step3d':      { el: 'Οι bugfixes του release πρέπει να πάνε και στο develop!', en: 'The release bugfixes must also go into develop!' },
+    'sc3-step4l':      { el: 'Διαγραφή release branch', en: 'Delete release branch' },
+    'sc3-step4d':      { el: 'Δεν το χρειαζόμαστε πλέον', en: 'We no longer need it' },
+    'sc3-danger':      { el: '<strong>Το πιο συχνό λάθος:</strong> Να ξεχάσεις το back-merge στο develop. Τότε, τα bugfixes που διόρθωσες στο UAT θα ξαναεμφανιστούν στο επόμενο release!', en: '<strong>The most common mistake:</strong> Forgetting the back-merge to develop. Then, the bugfixes you corrected in UAT will reappear in the next release!' },
+    // S4
+    'sc4-h3':          { el: '⚔️ Συγχρονισμός & Επίλυση Conflicts', en: '⚔️ Sync & Conflict Resolution' },
+    'sc4-desc':        { el: 'Ένας συνάδελφος έκανε merge στο develop πριν από σένα. Τώρα υπάρχουν "συγκρουόμενες" αλλαγές.', en: 'A colleague merged into develop before you. Now there are "conflicting" changes.' },
+    'sc4-step1l':      { el: 'Ενημέρωσε το τοπικό develop', en: 'Update local develop' },
+    'sc4-step1d':      { el: 'Κατέβασε τις αλλαγές του συναδέλφου', en: 'Download your colleague\'s changes' },
+    'sc4-step2l':      { el: 'Πήγαινε στο feature σου & κάνε merge develop', en: 'Go to your feature & merge develop' },
+    'sc4-step2d':      { el: 'Ενσωμάτωσε τις αλλαγές του στο δικό σου branch', en: 'Incorporate their changes into your branch' },
+    'sc4-step3l':      { el: 'Επίλυσε τα conflicts', en: 'Resolve the conflicts' },
+    'sc4-step3d':      { el: 'Ανοίγεις τα αρχεία, διαλέγεις τι να κρατήσεις', en: 'Open the files, choose what to keep' },
+    'sc4-step4l':      { el: 'Commit & Push', en: 'Commit & Push' },
+    'sc4-step4d':      { el: 'Ολοκλήρωσε και ανέβασε', en: 'Complete and push up' },
+    'sc4-tip':         { el: '<strong>Συμβουλή:</strong> Κάνε merge develop στο feature branch σου συχνά (κάθε μέρα ή δύο). Όσο πιο συχνά, τόσο μικρότερα τα conflicts.', en: '<strong>Tip:</strong> Merge develop into your feature branch often (every day or two). The more often, the smaller the conflicts.' },
+    // S5
+    'sc5-h3':          { el: '🔥 Hotfix — Επείγουσα Διόρθωση στην Παραγωγή', en: '🔥 Hotfix — Emergency Fix in Production' },
+    'sc5-desc':        { el: 'Βρέθηκε κρίσιμο bug στο LIVE σύστημα και πρέπει να διορθωθεί <strong>τώρα</strong>. Ξεκινάς από το main, ΟΧΙ από το develop.', en: 'A critical bug was found in the LIVE system and must be fixed <strong>now</strong>. You start from main, NOT from develop.' },
+    'sc5-step1l':      { el: 'Ξεκίνα από το main (ΟΧΙ develop!)', en: 'Start from main (NOT develop!)' },
+    'sc5-step1d':      { el: 'Θέλεις τον κώδικα που είναι ακριβώς στην παραγωγή', en: 'You need the code that is exactly in production' },
+    'sc5-step2l':      { el: 'Δημιούργησε hotfix branch', en: 'Create hotfix branch' },
+    'sc5-step2d':      { el: 'Διόρθωσε μόνο αυτό που καίει', en: 'Fix only what is burning' },
+    'sc5-step3l':      { el: 'Merge & Tag στο main', en: 'Merge & Tag to main' },
+    'sc5-step3d':      { el: 'Ανέβασε στην παραγωγή με νέο version tag', en: 'Deploy to production with a new version tag' },
+    'sc5-step4l':      { el: 'Back-merge στο develop ⚠️ ΚΡΙΣΙΜΟ', en: 'Back-merge to develop ⚠️ CRITICAL' },
+    'sc5-step4d':      { el: 'Αλλιώς το bug θα ξαναεμφανιστεί!', en: 'Otherwise the bug will reappear!' },
+    'sc5-step5l':      { el: 'Back-merge στο ενεργό release (αν υπάρχει)', en: 'Back-merge to the active release (if any)' },
+    'sc5-step5d':      { el: 'Αν υπάρχει release/v1.1 ανοιχτό, κάνε merge και εκεί', en: 'If release/v1.1 is open, merge there too' },
+    'sc5-danger':      { el: '<strong>Hotfix ≠ Feature.</strong> Ένα hotfix διορθώνει ΜΟΝΟ αυτό που "καίει". Αν θέλεις να κάνεις και άλλες αλλαγές, φτιάχνεις feature branch ξεχωριστά.', en: '<strong>Hotfix ≠ Feature.</strong> A hotfix fixes ONLY what is "burning". If you want to make other changes, you create a separate feature branch.' },
+
+    // Section 6 – Parallel
+    's6-title':        { el: 'Παράλληλη Ανάπτυξη — 3 Developers Ταυτόχρονα', en: 'Parallel Development — 3 Developers Simultaneously' },
+    's6-sub':          { el: 'Πώς δουλεύουν 3 άτομα ταυτόχρονα και κάνουν merge χωρίς να "τσακωθούν".', en: 'How 3 people work simultaneously and merge without "clashing".' },
+    's6-alert':        { el: '<strong>Ο κανόνας:</strong> Ο πρώτος που κάνει merge στο develop περνάει clean. Ο δεύτερος και τρίτος <em>πρέπει πρώτα να τραβήξουν το ενημερωμένο develop</em> και να λύσουν τυχόν conflicts, πριν ανοίξουν Pull Request.', en: '<strong>The rule:</strong> The first to merge into develop goes clean. The second and third <em>must first pull the updated develop</em> and resolve any conflicts before opening a Pull Request.' },
+
+    // Section 7 – Commits
+    's7-title':        { el: 'Conventional Commits — Η Γλώσσα των Commits', en: 'Conventional Commits — The Language of Commits' },
+    // Commit table headers & cells
+    'ct-col-meaning':     { el: 'Ελληνικά',               en: 'Meaning' },
+    'ct-col-when':        { el: 'Πότε το χρησιμοποιείς',  en: 'When to use it' },
+    'ct-col-example':     { el: 'Παράδειγμα',              en: 'Example' },
+    'ct-col-allowed':     { el: 'Επιτρέπεται σε',          en: 'Allowed in' },
+    'ct-feat-meaning':    { el: 'Νέα λειτουργία',          en: 'New feature' },
+    'ct-feat-when':       { el: 'Πρόσθεσες κάτι καινούριο', en: 'You added something new' },
+    'ct-fix-meaning':     { el: 'Διόρθωση',                en: 'Bug fix' },
+    'ct-fix-when':        { el: 'Διόρθωσες κάτι που δεν δούλευε', en: 'You fixed something that was broken' },
+    'ct-chore-meaning':   { el: 'Τακτοποίηση',             en: 'Housekeeping' },
+    'ct-chore-when':      { el: 'Δεν άλλαξες λογική — μόνο δομή/config', en: 'No logic change — only structure/config' },
+    'ct-docs-meaning':    { el: 'Τεκμηρίωση',              en: 'Documentation' },
+    'ct-docs-when':       { el: 'Ενημέρωσες README ή σχόλια', en: 'You updated README or comments' },
+    'ct-refactor-meaning':{ el: 'Αναδιοργάνωση',           en: 'Refactoring' },
+    'ct-refactor-when':   { el: 'Ίδια λογική, καλύτερος κώδικας', en: 'Same logic, cleaner code' },
+    'ct-revert-meaning':  { el: 'Αναίρεση',                en: 'Revert' },
+    'ct-revert-when':     { el: 'Αναιρείς ένα προηγούμενο commit', en: 'You are undoing a previous commit' },
+    'ct-test-meaning':    { el: 'Δοκιμές',                 en: 'Tests' },
+    'ct-test-when':       { el: 'Πρόσθεσες ή ενημέρωσες tests', en: 'You added or updated tests' },
+    's7-sub':          { el: 'Μια κοινή σύμβαση ώστε όλοι να καταλαβαίνουν τι άλλαξε, από ποιον, και γιατί.', en: 'A common convention so everyone understands what changed, by whom, and why.' },
+    's7-card-title':   { el: '🤔 Γιατί σημαντικό;', en: '🤔 Why does it matter?' },
+    's7-card-body':    { el: 'Φαντάσου να ανοίγεις το git log 3 μήνες μετά. Ποιο είναι πιο χρήσιμο;', en: 'Imagine opening the git log 3 months later. Which is more useful?' },
+    's7-bad-label':    { el: '❌ Χωρίς σύμβαση', en: '❌ Without convention' },
+    's7-good-label':   { el: '✅ Με Conventional Commits', en: '✅ With Conventional Commits' },
+    's7-scope-card':   { el: '📐 Η Δομή ενός Commit Message', en: '📐 Commit Message Structure' },
+    's7-scope-tip':    { el: 'Το <strong>scope</strong> (αυτό στις παρενθέσεις) είναι προαιρετικό αλλά πολύ χρήσιμο. Δείχνει ποιο κομμάτι του κώδικα αγγίξατε — π.χ. <code>etl</code>, <code>sql</code>, <code>dsx</code>.', en: 'The <strong>scope</strong> (the part in parentheses) is optional but very useful. It shows which part of the code was touched — e.g. <code>etl</code>, <code>sql</code>, <code>dsx</code>.' },
+
+    // Section 8 – Rules
+    's8-title':        { el: 'Κανόνες & Κοινά Λάθη', en: 'Rules & Common Mistakes' },
+    's8-sub':          { el: 'Κάθε κανόνας αντιστοιχεί σε ένα πραγματικό λάθος που γίνεται στην πράξη. Εδώ έχεις και τον κανόνα και τη λύση αν τον παραβείς.', en: 'Each rule corresponds to a real mistake made in practice. Here you have both the rule and the fix if you break it.' },
+    'rule1-title':     { el: '🚫 Ποτέ commit απευθείας στο main', en: '🚫 Never commit directly to main' },
+    'rule1-body':      { el: 'Το main = παραγωγή. Κάθε αλλαγή πρέπει να περάσει από review και testing. Ακόμα και αν είσαι ο μόνος developer.', en: 'main = production. Every change must go through review and testing. Even if you are the only developer.' },
+    'rule2-title':     { el: '🚫 Ποτέ commit απευθείας στο develop', en: '🚫 Never commit directly to develop' },
+    'rule2-body':      { el: 'Το develop είναι integration branch. Αλλαγές μπαίνουν μόνο μέσω Pull Requests από feature/release/hotfix branches.', en: 'develop is the integration branch. Changes enter only via Pull Requests from feature/release/hotfix branches.' },
+    'rule3-title':     { el: '⚠️ Πάντα back-merge από release/hotfix', en: '⚠️ Always back-merge from release/hotfix' },
+    'rule3-body':      { el: 'Μετά από κάθε release ή hotfix, κάνε merge και στο develop. Αλλιώς τα bugfixes θα χαθούν και θα ξαναεμφανιστούν!', en: 'After every release or hotfix, also merge into develop. Otherwise bugfixes will be lost and reappear!' },
+    'rule4-title':     { el: '🏷️ Πάντα tag στο main μετά από release', en: '🏷️ Always tag main after a release' },
+    'rule4-body':      { el: 'Τα tags είναι σαν "φωτογραφίες" της παραγωγής. Σε βοηθούν να γυρίσεις σε οποιοδήποτε release αν χρειαστεί.', en: 'Tags are like "photographs" of production. They help you return to any release if needed.' },
+    'rule5-title':     { el: '🔄 Sync συχνά με το develop', en: '🔄 Sync often with develop' },
+    'rule5-body':      { el: 'Κάνε merge develop στο feature branch σου τουλάχιστον μία φορά την ημέρα. Τα μικρά conflicts είναι πιο εύκολα από τα μεγάλα.', en: 'Merge develop into your feature branch at least once a day. Small conflicts are easier than large ones.' },
+    'rule6-title':     { el: '📝 Descriptive commit messages', en: '📝 Descriptive commit messages' },
+    'rule6-body':      { el: 'Χρησιμοποίησε conventional commits. Ένα "fix stuff" δεν λέει τίποτα σε κανέναν — ούτε σε σένα 3 μήνες μετά.', en: 'Use conventional commits. A "fix stuff" tells no one anything — not even yourself 3 months later.' },
+    'qr-title':        { el: '⚡ Quick Reference — Τι κάνω αν...', en: '⚡ Quick Reference — What do I do if...' },
+    'qr-new-task':     { el: '<strong style="color:var(--feature);">Ξεκινάω νέα εργασία:</strong>', en: '<strong style="color:var(--feature);">Starting a new task:</strong>' },
+    'qr-release':      { el: '<strong style="color:var(--release);">Ετοιμάζω release:</strong>', en: '<strong style="color:var(--release);">Preparing a release:</strong>' },
+    'qr-prod-bug':     { el: '<strong style="color:var(--hotfix);">Βρήκα bug στην παραγωγή:</strong>', en: '<strong style="color:var(--hotfix);">Found a bug in production:</strong>' },
+    'qr-conflict':     { el: '<strong style="color:var(--accent);">Υπάρχει conflict:</strong>', en: '<strong style="color:var(--accent);">There is a conflict:</strong>' },
+    'qr-forgot':       { el: '<strong style="color:var(--develop);">Ξέχασα back-merge:</strong>', en: '<strong style="color:var(--develop);">Forgot back-merge:</strong>' },
+    'qr-forgot-desc':  { el: 'Κάνε το τώρα — checkout develop, merge release/hotfix, push', en: 'Do it now — checkout develop, merge release/hotfix, push' },
+    'qr-history':      { el: '<strong style="color:var(--gold);">Θέλω να δω την ιστορία:</strong>', en: '<strong style="color:var(--gold);">I want to see the history:</strong>' },
+    'extra-title':     { el: '🛠️ Χρήσιμες Επιπλέον Εντολές', en: '🛠️ Useful Extra Commands' },
+
+    // Footer
+    'footer-main':     { el: '📖 <strong>Git Flow Εγχειρίδιο Ομάδας</strong> — Καλύπτει το 99% των περιπτώσεων που θα συναντήσεις στην καθημερινή ανάπτυξη.', en: '📖 <strong>Git Flow Team Manual</strong> — Covers 99% of situations you will encounter in daily development.' },
+    'footer-sub':      { el: 'Θυμήσου: <strong>Ποτέ commit στο main. Ποτέ commit στο develop. Πάντα back-merge.</strong>', en: 'Remember: <strong>Never commit to main. Never commit to develop. Always back-merge.</strong>' },
+
+    'rule2-fix':       { el: '✅ <strong>Λύση:</strong> Ανοίγεις feature branch, κάνεις PR, περιμένεις review.', en: '✅ <strong>Fix:</strong> Open a feature branch, make a PR, wait for review.' },
+    'rule4-fix':       { el: '✅ <strong>Λύση:</strong> <code>git tag -a v1.x -m "..."</code> αμέσως μετά το merge στο main.', en: '✅ <strong>Fix:</strong> <code>git tag -a v1.x -m "..."</code> immediately after merging to main.' },
+    'rule6-fix':       { el: '✅ <strong>Λύση:</strong> <code>feat(etl): add sales logic</code> αντί για <code>changes</code>.', en: '✅ <strong>Fix:</strong> <code>feat(etl): add sales logic</code> instead of <code>changes</code>.' },
+    'pr-title':       { el: 'Τι είναι το Pull Request (PR);', en: 'What is a Pull Request (PR)?' },
+    'pr-sub':         { el: 'Το βήμα που διασφαλίζει ότι κανείς δεν βάζει κώδικα στο develop χωρίς να το δει κάποιος άλλος πρώτα.', en: 'The step that ensures no one puts code into develop without someone else reviewing it first. Some version control repositories are mentioning it as Merge Request (MR)' },
+    'pr-what-title':  { el: '🤔 Με απλά λόγια', en: '🤔 In plain terms' },
+    'pr-what-body':   { el: 'Ένα Pull Request είναι μια <strong>επίσημη αίτηση</strong> να ενωθεί ο κώδικάς σου με κάποιο κεντρικό branch. Δεν κάνεις merge μόνος σου — ζητάς από την ομάδα να κοιτάξει τι έγραψες, να σχολιάσει, και να εγκρίνει. Γίνεται μέσα στο GitHub ή GitLab, στο browser.', en: 'A Pull Request is a <strong>formal request</strong> to merge your code into a central branch. You don\'t merge by yourself — you ask the team to look at what you wrote, comment, and approve. It happens inside GitHub or GitLab, in the browser.' },
+    'pr-step1-title': { el: 'Push το branch σου', en: 'Push your branch' },
+    'pr-step1-body':  { el: 'Ανεβάζεις το feature branch στο remote με <code style="color:var(--accent)">git push origin feature/xxx</code>', en: 'Upload your feature branch to the remote with <code style="color:var(--accent)">git push origin feature/xxx</code>' },
+    'pr-step2-title': { el: 'Άνοιξε PR στο UI', en: 'Open a PR in the UI' },
+    'pr-step2-body':  { el: 'Στο GitHub/GitLab πατάς "New Pull Request", επιλέγεις από <code style="color:var(--feature)">feature/xxx</code> προς <code style="color:var(--develop)">develop</code>', en: 'In GitHub/GitLab click "New Pull Request", select from <code style="color:var(--feature)">feature/xxx</code> to <code style="color:var(--develop)">develop</code>' },
+    'pr-step3-title': { el: 'Code Review', en: 'Code Review' },
+    'pr-step3-body':  { el: 'Συνάδελφος κοιτάει τον κώδικα, αφήνει σχόλια. Διορθώνεις αν χρειαστεί και κάνεις push ξανά — το PR ενημερώνεται αυτόματα.', en: 'A colleague reviews the code and leaves comments. You fix if needed and push again — the PR updates automatically.' },
+    'pr-step4-title': { el: 'Approve & Merge', en: 'Approve & Merge' },
+    'pr-step4-body':  { el: 'Μετά την έγκριση, πατάς "Merge Pull Request". Ο κώδικας μπαίνει στο develop. Το feature branch μπορεί να διαγραφεί.', en: 'After approval, click "Merge Pull Request". The code enters develop. The feature branch can be deleted.' },
+    'pr-tip':         { el: '<strong>Καλή πρακτική για PR descriptions:</strong> Γράψε τι αλλάζει, γιατί, και πώς να το δοκιμάσεις. Ένα καλό PR description εξοικονομεί χρόνο στον reviewer και επιταχύνει την έγκριση.', en: '<strong>Best practice for PR descriptions:</strong> Write what changes, why, and how to test it. A good PR description saves the reviewer time and speeds up approval.' },
+    'pr-warn':        { el: '<strong>Ποτέ μην κάνεις merge το δικό σου PR</strong> χωρίς review — ακόμα και αν είσαι σίγουρος ότι είναι σωστό. Το review δεν είναι μόνο για bugs, είναι και για να ξέρει η ομάδα τι μπήκε στον κώδικα.', en: '<strong>Never merge your own PR</strong> without a review — even if you are sure it is correct. A review is not just for bugs, it\'s also so the team knows what went into the code.' },
+
+    'mt2-title':  { el: '🚀 Σενάριο: Release ενώ άλλα 2 Teams συνεχίζουν', en: '🚀 Scenario: Release while 2 Teams keep working' },
+    'mt2-sub':    { el: 'Το Team A έχει ήδη κάνει merge και ο κώδικάς του πάει στην παραγωγή. Τα Teams B & C συνεχίζουν να δουλεύουν ταυτόχρονα στο develop — ανεπηρέαστα από το release.', en: 'Team A has already merged and their code goes to production. Teams B & C continue working simultaneously on develop — unaffected by the release.' },
+    'mt2-note1':  { el: '<strong>Release ≠ όλα τα features</strong> — Το v1.0 περιέχει μόνο ό,τι έχει κάνει merge στο develop. Teams B & C θα μπουν στο v1.1.', en: '<strong>Release ≠ all features</strong> — v1.0 contains only what has merged into develop. Teams B & C will go into v1.1.' },
+    'mt2-note2':  { el: '<strong>Τα B & C δεν σταματούν</strong> — Συνεχίζουν να δουλεύουν ανεπηρέαστα. Το release δεν τους αγγίζει.', en: '<strong>B & C do not stop</strong> — They continue working unaffected. The release does not touch them.' },
+    'mt2-note3':  { el: '<strong>Back-merge στα B & C</strong> — Μετά το deployment, το bugfix του UAT πηγαίνει πίσω στο develop και τα B & C το παίρνουν με sync.', en: '<strong>Back-merge to B & C</strong> — After deployment, the UAT bugfix goes back to develop and B & C pick it up via sync.' },
+    'mt-title':   { el: '🏢 Παράδειγμα: 3 Teams — Πραγματικό Σενάριο', en: '🏢 Example: 3 Teams — Real-World Scenario' },
+    'mt-sub':     { el: 'Πώς δουλεύουν παράλληλα 3 διαφορετικά teams και οδηγούν τον κώδικα στην παραγωγή χωρίς να "συγκρουστούν".', en: 'How 3 different teams work in parallel and bring their code to production without "clashing".' },
+    'mt-note1':   { el: '<strong>Teams δουλεύουν παράλληλα</strong> — ο καθένας στο δικό του branch, ανεξάρτητα από τους άλλους.', en: '<strong>Teams work in parallel</strong> — each on their own branch, independently of the others.' },
+    'mt-note2':   { el: '<strong>Sync συχνά</strong> — Team B & C τραβούν το develop μετά από κάθε merge για να αποφύγουν μεγάλα conflicts.', en: '<strong>Sync often</strong> — Team B & C pull develop after each merge to avoid large conflicts.' },
+    'mt-note3':   { el: '<strong>Release μετά από όλα τα merges</strong> — το release/v1.0 δημιουργείται μόλις και τα 3 teams έχουν κάνει merge στο develop.', en: '<strong>Release after all merges</strong> — release/v1.0 is created once all 3 teams have merged into develop.' },
+    // Section 9 – Lifecycle
+    'lc-title':       { el: 'Ο Κύκλος Ζωής ενός Feature', en: 'The Lifecycle of a Feature' },
+    'lc-sub':         { el: 'Από τη στιγμή που παίρνεις ένα task μέχρι να βγει live στην παραγωγή — το πλήρες timeline.', en: 'From the moment you pick up a task to it going live in production — the full timeline.' },
+    'lc-s1-title':    { el: 'Παίρνεις το Task', en: 'You Pick Up the Task' },
+    'lc-s1-body':     { el: 'Από Jira, Asana, ή το team board. Διαβάζεις τι ζητάει, κατανοείς τι πρέπει να αλλάξει στον κώδικα.', en: 'From Jira, Asana, or the team board. You read what it requires, understand what needs to change in the code.' },
+    'lc-s1-tag':      { el: 'Branch: ακόμα στο develop', en: 'Branch: still on develop' },
+    'lc-s2-title':    { el: 'Δημιουργείς Feature Branch', en: 'Create the Feature Branch' },
+    'lc-s2-body':     { el: '<code style="color:var(--accent)">git checkout -b feature/my-task</code> — Απομονώνεσαι από την υπόλοιπη ομάδα. Γράφεις κώδικα, κάνεις commits.', en: '<code style="color:var(--accent)">git checkout -b feature/my-task</code> — You isolate yourself from the rest of the team. Write code, make commits.' },
+    'lc-s3-title':    { el: 'Pull Request & Code Review', en: 'Pull Request & Code Review' },
+    'lc-s3-body':     { el: 'Push το branch, ανοίγεις PR στο GitHub/GitLab. Συνάδελφος κάνει review. Διορθώνεις τυχόν παρατηρήσεις.', en: 'Push the branch, open a PR in GitHub/GitLab. A colleague reviews. You fix any comments.' },
+    'lc-s3-tag':      { el: 'feature → develop (μέσω PR)', en: 'feature → develop (via PR)' },
+    'lc-s4-title':    { el: 'Merge στο Develop', en: 'Merge to Develop' },
+    'lc-s4-body':     { el: 'Εγκρίθηκε το PR. Ο κώδικάς σου μπαίνει στο develop μαζί με τα features άλλων developers. Διαγράφεις το feature branch.', en: 'PR approved. Your code enters develop alongside other developers\' features. You delete the feature branch.' },
+    'lc-s5-title':    { el: 'Release Branch & UAT', en: 'Release Branch & UAT' },
+    'lc-s5-body':     { el: 'Δημιουργείται <code style="color:var(--accent)">release/v1.x</code> από το develop. Πάει για UAT testing. Αν βρεθούν bugs, διορθώνονται εδώ.', en: '<code style="color:var(--accent)">release/v1.x</code> is created from develop. Goes for UAT testing. If bugs are found, they are fixed here.' },
+    'lc-s6-title':    { el: 'Production — Live! 🎉', en: 'Production — Live! 🎉' },
+    'lc-s6-body':     { el: 'UAT έδωσε OK. Merge στο main, tag της έκδοσης, back-merge στο develop. Ο κώδικάς σου είναι τώρα live.', en: 'UAT gave the OK. Merge to main, tag the version, back-merge to develop. Your code is now live.' },
+    'lc-tip':         { el: '<strong>Τυπικό timeline:</strong> Feature branch → 1-5 μέρες ανάπτυξη → PR review 1-2 μέρες → UAT 2-5 μέρες → Production. Ο χρόνος ποικίλλει ανά ομάδα, αλλά η ροή παραμένει πάντα η ίδια.', en: '<strong>Typical timeline:</strong> Feature branch → 1-5 days development → PR review 1-2 days → UAT 2-5 days → Production. Time varies per team, but the flow always stays the same.' },
+
+    // Section 10 – Common Mistakes
+    'cm-title':          { el: 'Κοινά Λάθη & Πώς να τα Αποφύγεις', en: 'Common Mistakes & How to Avoid Them' },
+    'cm-sub':            { el: 'Τα πιο συχνά λάθη που κάνουν αρχάριοι — και πώς να μην πέσεις σε αυτές τις παγίδες.', en: 'The most frequent mistakes beginners make — and how not to fall into these traps.' },
+    'cm-m1-title':       { el: 'Commit απευθείας στο main/develop', en: 'Committing directly to main/develop' },
+    'cm-m1-body':        { el: 'Κάνεις αλλαγές τοπικά και τις πας κατευθείαν στο main ή develop χωρίς branch και PR.', en: 'You make changes locally and push them directly to main or develop without a branch and PR.' },
+    'cm-m1-fix':         { el: '✅ <strong>Λύση:</strong> Πάντα <code>git checkout -b feature/xxx</code> πριν γράψεις οτιδήποτε.', en: '✅ <strong>Fix:</strong> Always <code>git checkout -b feature/xxx</code> before writing anything.' },
+    'cm-m2-title':       { el: 'Ξεχνάς το back-merge', en: 'Forgetting the back-merge' },
+    'cm-m2-body':        { el: 'Κάνεις deploy release/hotfix στο main αλλά ξεχνάς να κάνεις merge πίσω στο develop. Τα bugfixes χάνονται.', en: 'You deploy release/hotfix to main but forget to merge back to develop. The bugfixes are lost.' },
+    'cm-m2-fix':         { el: '✅ <strong>Λύση:</strong> Κάνε το back-merge αμέσως μετά το merge στο main — μην το αφήνεις για αργότερα.', en: '✅ <strong>Fix:</strong> Do the back-merge immediately after merging to main — don\'t leave it for later.' },
+    'cm-m3-title':       { el: 'Feature branch που ζει για πάντα', en: 'A feature branch that lives forever' },
+    'cm-m3-body':        { el: 'Ανοίγεις branch, δουλεύεις για 3 εβδομάδες χωρίς sync με το develop. Αποτέλεσμα: τεράστια conflicts.', en: 'You open a branch, work for 3 weeks without syncing with develop. Result: massive conflicts.' },
+    'cm-m3-fix':         { el: '✅ <strong>Λύση:</strong> <code>git merge develop</code> στο feature branch σου κάθε 1-2 μέρες.', en: '✅ <strong>Fix:</strong> <code>git merge develop</code> into your feature branch every 1-2 days.' },
+    'cm-m4-title':       { el: 'git push --force', en: 'git push --force' },
+    'cm-m4-body':        { el: 'Το force push ξεγράφει ιστορία στο remote. Αν το κάνεις σε shared branch, σβήνεις δουλειά συναδέλφων.', en: 'Force push overwrites history on the remote. If done on a shared branch, you erase colleagues\' work.' },
+    'cm-m4-fix':         { el: '✅ <strong>Λύση:</strong> Ποτέ <code>--force</code> σε develop/main/release. Μόνο σε personal feature branches αν είναι απαραίτητο.', en: '✅ <strong>Fix:</strong> Never <code>--force</code> on develop/main/release. Only on personal feature branches if absolutely necessary.' },
+    'cm-m5-title':       { el: 'Commit passwords ή API keys', en: 'Committing passwords or API keys' },
+    'cm-m5-body':        { el: 'Ανεβάζεις αρχείο config με credentials. Μόλις πάει στο remote, είναι εκτεθειμένο — ακόμα και αν το διαγράψεις μετά.', en: 'You upload a config file with credentials. Once it goes to the remote, it is exposed — even if you delete it afterwards.' },
+    'cm-m5-fix':         { el: '✅ <strong>Λύση:</strong> Χρησιμοποίησε <code>.gitignore</code> για config files και environment variables. Αν ανέβηκε ήδη, άλλαξε αμέσως τα credentials.', en: '✅ <strong>Fix:</strong> Use <code>.gitignore</code> for config files and environment variables. If already uploaded, change the credentials immediately.' },
+    'cm-m6-title':       { el: 'Νέα features στο release branch', en: 'New features in the release branch' },
+    'cm-m6-body':        { el: 'Ενώ το release είναι ανοιχτό για UAT, προσθέτεις νέα λειτουργικότητα αντί για μόνο bugfixes.', en: 'While the release is open for UAT, you add new functionality instead of bugfixes only.' },
+    'cm-m6-fix':         { el: '✅ <strong>Λύση:</strong> Το release branch δέχεται μόνο fix/docs/chore. Νέο feature → επόμενο release.', en: '✅ <strong>Fix:</strong> The release branch only accepts fix/docs/chore. New feature → next release.' },
+    'cm-gitignore-tip':  { el: '<strong>.gitignore — το πρώτο αρχείο που φτιάχνεις σε κάθε project:</strong> Βάλε εκεί όλα τα αρχεία που δεν πρέπει να ανέβουν: <code style="color:var(--accent)">.env</code>, <code style="color:var(--accent)">config/local.yml</code>, <code style="color:var(--accent)">*.key</code>, <code style="color:var(--accent)">node_modules/</code>, <code style="color:var(--accent)">__pycache__/</code>. Υπάρχουν έτοιμα templates στο <span style="color:var(--accent)">gitignore.io</span>.', en: '<strong>.gitignore — the first file you create in every project:</strong> Put there all files that must not be uploaded: <code style="color:var(--accent)">.env</code>, <code style="color:var(--accent)">config/local.yml</code>, <code style="color:var(--accent)">*.key</code>, <code style="color:var(--accent)">node_modules/</code>, <code style="color:var(--accent)">__pycache__/</code>. Ready-made templates exist at <span style="color:var(--accent)">gitignore.io</span>.' },
+
+    // Code block headers
+    'cb-header-s1':  { el: 'Terminal — Scenario 1: Feature', en: 'Terminal — Scenario 1: Feature' },
+    'cb-header-s2':  { el: 'Terminal — Σενάριο 2: Release & UAT', en: 'Terminal — Scenario 2: Release & UAT' },
+    'cb-header-s3':  { el: 'Terminal — Σενάριο 3: Deployment', en: 'Terminal — Scenario 3: Deployment' },
+    'cb-header-s4':  { el: 'Terminal — Σενάριο 4: Επίλυση Conflicts', en: 'Terminal — Scenario 4: Resolving Conflicts' },
+    'cb-header-s5':  { el: 'Terminal — Scenario 5: Hotfix', en: 'Terminal — Scenario 5: Hotfix' },
+    'cb-header-p6':  { el: 'Terminal — Developer B (2ος που merges)', en: 'Terminal — Developer B (2nd to merge)' },
+    'cb-header-extra':{ el: 'Handy Git Commands', en: 'Handy Git Commands' },
+  };
+
+  // ── CODE BLOCK TRANSLATIONS ──
+  const codeBlocks = {
+    'code-s1': {
+      el: `<span class="cmd-comment"># Βήμα 1 & 2: Πήγαινε στο develop και ενημερώσου</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> pull <span class="cmd-arg">origin develop</span>\n\n<span class="cmd-comment"># Βήμα 3: Δημιούργησε το feature branch</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-arg">-b</span> <span class="cmd-branch">feature/sales-task</span>\n\n<span class="cmd-comment"># Βήμα 4: Δούλεψε... και κάνε commits</span>\n<span class="cmd-git">git</span> add .\n<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"feat: add sales transformation logic"</span>\n<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"fix: correct date filter in query"</span>\n\n<span class="cmd-comment"># Βήμα 5: Push στο remote</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">feature/sales-task</span>\n<span class="cmd-comment"># → Πήγαινε στο GitHub/GitLab και άνοιξε Pull Request</span>\n\n<span class="cmd-comment"># Βήμα 6: Μετά την έγκριση, καθάρισε τοπικά</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> branch <span class="cmd-arg">-d</span> <span class="cmd-branch">feature/sales-task</span>`,
+      en: `<span class="cmd-comment"># Step 1 & 2: Go to develop and update</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> pull <span class="cmd-arg">origin develop</span>\n\n<span class="cmd-comment"># Step 3: Create the feature branch</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-arg">-b</span> <span class="cmd-branch">feature/sales-task</span>\n\n<span class="cmd-comment"># Step 4: Do your work... and commit</span>\n<span class="cmd-git">git</span> add .\n<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"feat: add sales transformation logic"</span>\n<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"fix: correct date filter in query"</span>\n\n<span class="cmd-comment"># Step 5: Push to remote</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">feature/sales-task</span>\n<span class="cmd-comment"># → Go to GitHub/GitLab and open a Pull Request</span>\n\n<span class="cmd-comment"># Step 6: After approval, clean up locally</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> branch <span class="cmd-arg">-d</span> <span class="cmd-branch">feature/sales-task</span>`
+    },
+    'code-s2': {
+      el: `<span class="cmd-comment"># Βήμα 1: Ξεκίνα από το ενημερωμένο develop</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> pull <span class="cmd-arg">origin develop</span>\n\n<span class="cmd-comment"># Βήμα 2: Δημιούργησε release branch</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-arg">-b</span> <span class="cmd-branch">release/v1.0</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">release/v1.0</span>\n<span class="cmd-comment"># → Deploy στο UAT περιβάλλον</span>\n\n<span class="cmd-comment"># Βήμα 3: Βρέθηκε bug στο UAT — διόρθωσε απευθείας</span>\n<span class="cmd-comment">#   (π.χ. φίλτρο λάθος στο SQL)</span>\n<span class="cmd-git">git</span> add .\n<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"fix: aggregation error found in UAT"</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">release/v1.0</span>\n<span class="cmd-comment"># → Ξαναστείλε για UAT re-test</span>`,
+      en: `<span class="cmd-comment"># Step 1: Start from the updated develop</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> pull <span class="cmd-arg">origin develop</span>\n\n<span class="cmd-comment"># Step 2: Create the release branch</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-arg">-b</span> <span class="cmd-branch">release/v1.0</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">release/v1.0</span>\n<span class="cmd-comment"># → Deploy to UAT environment</span>\n\n<span class="cmd-comment"># Step 3: Bug found in UAT — fix directly on release branch</span>\n<span class="cmd-comment">#   (e.g. wrong filter in the SQL)</span>\n<span class="cmd-git">git</span> add .\n<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"fix: aggregation error found in UAT"</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">release/v1.0</span>\n<span class="cmd-comment"># → Send back for UAT re-test</span>`
+    },
+    'code-s3': {
+      el: `<span class="cmd-comment"># Βήμα 1: Merge στο main (Παραγωγή)</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">main</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">release/v1.0</span>\n\n<span class="cmd-comment"># Βήμα 2: Ταγκάρισε την έκδοση</span>\n<span class="cmd-git">git</span> tag <span class="cmd-arg">-a</span> <span class="cmd-tag">v1.0</span> <span class="cmd-arg">-m</span> <span class="cmd-msg">"Production Release v1.0"</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin main --tags</span>\n\n<span class="cmd-comment"># Βήμα 3: ΚΡΙΣΙΜΟ — Back-merge στο develop</span>\n<span class="cmd-comment">#   (αν παραλείψεις αυτό, τα bugfixes θα χαθούν!)</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">release/v1.0</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin develop</span>\n\n<span class="cmd-comment"># Βήμα 4: Διέγραψε το release branch</span>\n<span class="cmd-git">git</span> branch <span class="cmd-arg">-d</span> <span class="cmd-branch">release/v1.0</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin --delete</span> <span class="cmd-branch">release/v1.0</span>`,
+      en: `<span class="cmd-comment"># Step 1: Merge to main (Production)</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">main</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">release/v1.0</span>\n\n<span class="cmd-comment"># Step 2: Tag the version</span>\n<span class="cmd-git">git</span> tag <span class="cmd-arg">-a</span> <span class="cmd-tag">v1.0</span> <span class="cmd-arg">-m</span> <span class="cmd-msg">"Production Release v1.0"</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin main --tags</span>\n\n<span class="cmd-comment"># Step 3: CRITICAL — Back-merge to develop</span>\n<span class="cmd-comment">#   (if you skip this, the bugfixes will be lost!)</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">release/v1.0</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin develop</span>\n\n<span class="cmd-comment"># Step 4: Delete the release branch</span>\n<span class="cmd-git">git</span> branch <span class="cmd-arg">-d</span> <span class="cmd-branch">release/v1.0</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin --delete</span> <span class="cmd-branch">release/v1.0</span>`
+    },
+    'code-s4': {
+      el: `<span class="cmd-comment"># Βήμα 1: Ενημέρωσε το τοπικό develop</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> pull <span class="cmd-arg">origin develop</span>\n\n<span class="cmd-comment"># Βήμα 2: Πήγαινε στο feature σου</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">feature/my-task</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">develop</span>\n<span class="cmd-comment"># → Θα δεις κάτι σαν: CONFLICT (content): Merge conflict in sales.sql</span>\n\n<span class="cmd-comment"># Βήμα 3: Άνοιξε το αρχείο — θα δεις:</span>\n<span class="cmd-comment"># &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD   (ο δικός σου κώδικας)</span>\n<span class="cmd-comment"># SELECT * FROM sales WHERE date &gt; '2024-01-01'</span>\n<span class="cmd-comment"># =======</span>\n<span class="cmd-comment"># SELECT * FROM sales WHERE region = 'EU'   (συνάδελφος)</span>\n<span class="cmd-comment"># &gt;&gt;&gt;&gt;&gt;&gt;&gt; develop</span>\n<span class="cmd-comment">#</span>\n<span class="cmd-comment"># Διόρθωσε — κράτα το σωστό, σβήσε τα &lt;&lt;&lt; === &gt;&gt;&gt;</span>\n\n<span class="cmd-comment"># Βήμα 4: Ολοκλήρωσε το merge</span>\n<span class="cmd-git">git</span> add .\n<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"chore: resolve conflicts with develop"</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">feature/my-task</span>`,
+      en: `<span class="cmd-comment"># Step 1: Update local develop</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> pull <span class="cmd-arg">origin develop</span>\n\n<span class="cmd-comment"># Step 2: Go to your feature branch</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">feature/my-task</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">develop</span>\n<span class="cmd-comment"># → You will see: CONFLICT (content): Merge conflict in sales.sql</span>\n\n<span class="cmd-comment"># Step 3: Open the file — you will see:</span>\n<span class="cmd-comment"># &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD   (your code)</span>\n<span class="cmd-comment"># SELECT * FROM sales WHERE date &gt; '2024-01-01'</span>\n<span class="cmd-comment"># =======</span>\n<span class="cmd-comment"># SELECT * FROM sales WHERE region = 'EU'   (colleague)</span>\n<span class="cmd-comment"># &gt;&gt;&gt;&gt;&gt;&gt;&gt; develop</span>\n<span class="cmd-comment">#</span>\n<span class="cmd-comment"># Fix it — keep the correct code, delete the &lt;&lt;&lt; === &gt;&gt;&gt; markers</span>\n\n<span class="cmd-comment"># Step 4: Complete the merge</span>\n<span class="cmd-git">git</span> add .\n<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"chore: resolve conflicts with develop"</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">feature/my-task</span>`
+    },
+    'code-s5': {
+      el: `<span class="cmd-comment"># Βήμα 1 & 2: Ξεκίνα από main, δημιούργησε hotfix</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">main</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-arg">-b</span> <span class="cmd-branch">hotfix/fix-prod-filter</span>\n\n<span class="cmd-comment"># Βήμα 3: Διόρθωσε & commit (μόνο αυτό που καίει!)</span>\n<span class="cmd-git">git</span> add .\n<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"fix: production critical filter correction"</span>\n\n<span class="cmd-comment"># Βήμα 4: Merge & Tag στο main</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">main</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">hotfix/fix-prod-filter</span>\n<span class="cmd-git">git</span> tag <span class="cmd-arg">-a</span> <span class="cmd-tag">v1.0.1</span> <span class="cmd-arg">-m</span> <span class="cmd-msg">"Hotfix for filter bug"</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin main --tags</span>\n\n<span class="cmd-comment"># Βήμα 5: ΚΡΙΣΙΜΟ — Back-merge στο develop</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">hotfix/fix-prod-filter</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin develop</span>\n\n<span class="cmd-comment"># Βήμα 6: Αν υπάρχει ενεργό release branch, merge εκεί επίσης</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">release/v1.1</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">hotfix/fix-prod-filter</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin release/v1.1</span>\n\n<span class="cmd-comment"># Βήμα 7: Καθαρισμός</span>\n<span class="cmd-git">git</span> branch <span class="cmd-arg">-d</span> <span class="cmd-branch">hotfix/fix-prod-filter</span>`,
+      en: `<span class="cmd-comment"># Step 1 & 2: Start from main, create hotfix branch</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">main</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-arg">-b</span> <span class="cmd-branch">hotfix/fix-prod-filter</span>\n\n<span class="cmd-comment"># Step 3: Fix & commit (only what is critical!)</span>\n<span class="cmd-git">git</span> add .\n<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"fix: production critical filter correction"</span>\n\n<span class="cmd-comment"># Step 4: Merge & Tag to main</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">main</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">hotfix/fix-prod-filter</span>\n<span class="cmd-git">git</span> tag <span class="cmd-arg">-a</span> <span class="cmd-tag">v1.0.1</span> <span class="cmd-arg">-m</span> <span class="cmd-msg">"Hotfix for filter bug"</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin main --tags</span>\n\n<span class="cmd-comment"># Step 5: CRITICAL — Back-merge to develop</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">hotfix/fix-prod-filter</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin develop</span>\n\n<span class="cmd-comment"># Step 6: If an active release branch exists, merge there too</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">release/v1.1</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">hotfix/fix-prod-filter</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin release/v1.1</span>\n\n<span class="cmd-comment"># Step 7: Cleanup</span>\n<span class="cmd-git">git</span> branch <span class="cmd-arg">-d</span> <span class="cmd-branch">hotfix/fix-prod-filter</span>`
+    },
+    'code-p6': {
+      el: `<span class="cmd-comment"># Βλέπεις ότι ο Dev A merge — ενημερώσου πριν κάνεις PR</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> pull <span class="cmd-arg">origin develop</span>         <span class="cmd-comment"># Κατέβασε τις αλλαγές του Dev A</span>\n\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">feature/customers-task</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">develop</span>              <span class="cmd-comment"># Ενσωμάτωσε τις αλλαγές στο δικό σου branch</span>\n\n<span class="cmd-comment"># Αν υπάρχουν conflicts, λύσε τα (δες Σενάριο 4)</span>\n<span class="cmd-git">git</span> add .\n<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"chore: sync with develop after sales-task merge"</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">feature/customers-task</span>\n<span class="cmd-comment"># → Τώρα άνοιξε το Pull Request — θα περάσει clean</span>`,
+      en: `<span class="cmd-comment"># Dev A has merged — update before opening your PR</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">develop</span>\n<span class="cmd-git">git</span> pull <span class="cmd-arg">origin develop</span>         <span class="cmd-comment"># Download Dev A's changes</span>\n\n<span class="cmd-git">git</span> checkout <span class="cmd-branch">feature/customers-task</span>\n<span class="cmd-git">git</span> merge <span class="cmd-branch">develop</span>              <span class="cmd-comment"># Incorporate the changes into your branch</span>\n\n<span class="cmd-comment"># If there are conflicts, resolve them (see Scenario 4)</span>\n<span class="cmd-git">git</span> add .\n<span class="cmd-git">git</span> commit <span class="cmd-arg">-m</span> <span class="cmd-msg">"chore: sync with develop after sales-task merge"</span>\n<span class="cmd-git">git</span> push <span class="cmd-arg">origin</span> <span class="cmd-branch">feature/customers-task</span>\n<span class="cmd-comment"># → Now open the Pull Request — it will pass clean</span>`
+    },
+    'code-extra': {
+      el: `<span class="cmd-comment"># Δες όλα τα branches (local + remote)</span>\n<span class="cmd-git">git</span> branch <span class="cmd-arg">-a</span>\n\n<span class="cmd-comment"># Δες το log γραφικά</span>\n<span class="cmd-git">git</span> log <span class="cmd-arg">--oneline --graph --all</span>\n\n<span class="cmd-comment"># Δες τι αλλαγές έχεις κάνει</span>\n<span class="cmd-git">git</span> status\n<span class="cmd-git">git</span> diff\n\n<span class="cmd-comment"># Αναίρεσε αλλαγές σε ένα αρχείο (πριν commit)</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-arg">--</span> <span class="cmd-msg">filename.sql</span>\n\n<span class="cmd-comment"># Δες ποια tags υπάρχουν (releases)</span>\n<span class="cmd-git">git</span> tag <span class="cmd-arg">-l</span>\n\n<span class="cmd-comment"># Ποιος άλλαξε τι σε ένα αρχείο;</span>\n<span class="cmd-git">git</span> blame <span class="cmd-msg">sales_etl.sql</span>\n\n<span class="cmd-comment"># Γύρνα σε μια προηγούμενη έκδοση (tag)</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-tag">v1.0</span>`,
+      en: `<span class="cmd-comment"># See all branches (local + remote)</span>\n<span class="cmd-git">git</span> branch <span class="cmd-arg">-a</span>\n\n<span class="cmd-comment"># See the log graphically</span>\n<span class="cmd-git">git</span> log <span class="cmd-arg">--oneline --graph --all</span>\n\n<span class="cmd-comment"># See what changes you have made</span>\n<span class="cmd-git">git</span> status\n<span class="cmd-git">git</span> diff\n\n<span class="cmd-comment"># Undo changes in a file (before commit)</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-arg">--</span> <span class="cmd-msg">filename.sql</span>\n\n<span class="cmd-comment"># See which tags exist (releases)</span>\n<span class="cmd-git">git</span> tag <span class="cmd-arg">-l</span>\n\n<span class="cmd-comment"># Who changed what in a file?</span>\n<span class="cmd-git">git</span> blame <span class="cmd-msg">sales_etl.sql</span>\n\n<span class="cmd-comment"># Go back to a previous version (tag)</span>\n<span class="cmd-git">git</span> checkout <span class="cmd-tag">v1.0</span>`
+    },
+    'code-commit-structure': {
+      el: `<span class="cmd-comment"># Βασική μορφή:</span>\n<span class="cmd-msg">type(scope): σύντομη περιγραφή στα αγγλικά</span>\n\n<span class="cmd-comment"># Παραδείγματα:</span>\n<span class="cmd-msg">feat(etl): add daily sales aggregation job</span>\n<span class="cmd-msg">fix(sql): correct date filter for EU region</span>\n<span class="cmd-msg">chore(dsx): export sales_pipeline job config</span>\n<span class="cmd-msg">feat(etl/customers): add customer segmentation logic</span>\n<span class="cmd-msg">fix(prod): hotfix null values in revenue column</span>\n<span class="cmd-msg">test(etl): add unit test for sales aggregation</span>`,
+      en: `<span class="cmd-comment"># Basic format:</span>\n<span class="cmd-msg">type(scope): short description in English</span>\n\n<span class="cmd-comment"># Examples:</span>\n<span class="cmd-msg">feat(etl): add daily sales aggregation job</span>\n<span class="cmd-msg">fix(sql): correct date filter for EU region</span>\n<span class="cmd-msg">chore(dsx): export sales_pipeline job config</span>\n<span class="cmd-msg">feat(etl/customers): add customer segmentation logic</span>\n<span class="cmd-msg">fix(prod): hotfix null values in revenue column</span>\n<span class="cmd-msg">test(etl): add unit test for sales aggregation</span>`
+    }
+  };
+
+  function translateCodeBlocks(lang) {
+    Object.keys(codeBlocks).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = codeBlocks[id][lang];
+    });
+  }
+
+  function toggleLang() {
+    currentLang = currentLang === 'el' ? 'en' : 'el';
+    document.documentElement.lang = currentLang;
+
+    const elBtn = document.getElementById('btn-el');
+    const enBtn = document.getElementById('btn-en');
+
+    if (currentLang === 'en') {
+      elBtn.style.background = 'transparent';
+      elBtn.style.color = 'var(--text-muted)';
+      enBtn.style.background = 'var(--accent)';
+      enBtn.style.color = '#0d1117';
+    } else {
+      elBtn.style.background = 'var(--accent)';
+      elBtn.style.color = '#0d1117';
+      enBtn.style.background = 'transparent';
+      enBtn.style.color = 'var(--text-muted)';
+    }
+
+    // Translate code blocks
+    translateCodeBlocks(currentLang);
+
+    // Translate all [data-i18n] elements
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (translations[key]) {
+        el.innerHTML = translations[key][currentLang];
+      }
+    });
+
+    // Translate nav links
+    document.querySelectorAll('nav a[data-el]').forEach(el => {
+      el.textContent = currentLang === 'el' ? el.getAttribute('data-el') : el.getAttribute('data-en');
+    });
+  }
+</script>
+</body>
+</html>
