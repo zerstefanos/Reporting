@@ -1,0 +1,205 @@
+table employee
+	lineageTag: 6bb22898-5868-4662-93a5-b2f0bfaf4902
+
+	column id
+		dataType: int64
+		formatString: 0
+		lineageTag: 654db6f9-0698-4c8d-ac42-61920a6a930f
+		summarizeBy: sum
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column first_name
+		dataType: string
+		lineageTag: 15ac1d6b-a4ce-4b76-b284-6535891e88d7
+		summarizeBy: none
+		sourceColumn: first_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column middle_name
+		dataType: string
+		lineageTag: c064fc26-96a4-437a-80a6-0bbeb2fc882f
+		summarizeBy: none
+		sourceColumn: middle_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column last_name
+		dataType: string
+		lineageTag: 8668cb6e-6755-474a-a2b0-1d862356958f
+		summarizeBy: none
+		sourceColumn: last_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column father_name
+		dataType: string
+		lineageTag: 28855d3a-d7a9-451b-9b5b-0ea36020e4c8
+		summarizeBy: none
+		sourceColumn: father_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column mother_name
+		dataType: string
+		lineageTag: 57a6a393-4710-4f61-a820-418081cda120
+		summarizeBy: none
+		sourceColumn: mother_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column mother_last_name
+		dataType: string
+		lineageTag: 6802259a-8902-4927-bdad-64cc343b5955
+		summarizeBy: none
+		sourceColumn: mother_last_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column gender
+		dataType: string
+		lineageTag: eab5d2eb-92cd-40e0-a70a-1579775475dc
+		summarizeBy: none
+		sourceColumn: gender
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_of_birth
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: fc4109a7-356b-496a-9286-2db3273ab7d8
+		summarizeBy: none
+		sourceColumn: date_of_birth
+
+		variation Παραλλαγή
+			isDefault
+			relationship: bc566526-15e1-4018-bcc6-0480b02885c6
+			defaultHierarchy: LocalDateTable_c3b885f9-c1ff-46eb-bf77-21f85c7a5f69.'Ιεραρχία ημερομηνιών'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column place_of_birth
+		dataType: string
+		lineageTag: 47e6fc32-ce6e-4c24-9dc9-e1aa0100ec58
+		summarizeBy: none
+		sourceColumn: place_of_birth
+
+		annotation SummarizationSetBy = Automatic
+
+	column nationality
+		dataType: string
+		lineageTag: 5a13cbcb-85e9-47be-95c7-36b0d2569b69
+		summarizeBy: none
+		sourceColumn: nationality
+
+		annotation SummarizationSetBy = Automatic
+
+	column marital_status
+		dataType: string
+		lineageTag: 5afa436e-26a7-4ce3-9c11-6956b8cebfe5
+		summarizeBy: none
+		sourceColumn: marital_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column id_number
+		dataType: string
+		lineageTag: 965204c8-7f08-46c4-9c9a-a3d7fae8886e
+		summarizeBy: none
+		sourceColumn: id_number
+
+		annotation SummarizationSetBy = Automatic
+
+	column vat_number
+		dataType: string
+		lineageTag: be3cc975-4227-44c8-bd72-e370bc8f8911
+		summarizeBy: none
+		sourceColumn: vat_number
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_active
+		dataType: int64
+		formatString: 0
+		lineageTag: 77b8bb94-01b9-4e02-9db9-b877035f6b36
+		summarizeBy: sum
+		sourceColumn: is_active
+
+		annotation SummarizationSetBy = Automatic
+
+	column created_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: a0ebfe8e-4814-44cf-ab5d-1f493e5fb011
+		summarizeBy: none
+		sourceColumn: created_date
+
+		variation Παραλλαγή
+			isDefault
+			relationship: 6690a205-7385-4a24-af42-c5d339e871b1
+			defaultHierarchy: LocalDateTable_e29cdaf9-d7a0-4e97-aea8-71a3eaf94b2e.'Ιεραρχία ημερομηνιών'
+
+		annotation SummarizationSetBy = Automatic
+
+	column created_by
+		dataType: string
+		lineageTag: d3000ea4-de68-44d0-a23c-c38c97cc63d1
+		summarizeBy: none
+		sourceColumn: created_by
+
+		annotation SummarizationSetBy = Automatic
+
+	column last_modified_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 7a7d16c5-1fc1-4168-bbf4-47b47812eae7
+		summarizeBy: none
+		sourceColumn: last_modified_date
+
+		variation Παραλλαγή
+			isDefault
+			relationship: 07026c96-7fd1-44b2-82dc-d108c3af790c
+			defaultHierarchy: LocalDateTable_3d40cbb2-87b9-4eeb-b719-671a6da25782.'Ιεραρχία ημερομηνιών'
+
+		annotation SummarizationSetBy = Automatic
+
+	column last_modified_by
+		dataType: string
+		lineageTag: 36f48873-3b64-428b-9cbd-ee9ae432828d
+		summarizeBy: none
+		sourceColumn: last_modified_by
+
+		annotation SummarizationSetBy = Automatic
+
+	column version
+		dataType: int64
+		formatString: 0
+		lineageTag: fef752a6-9c17-4650-b6d5-e9f04cf05c53
+		summarizeBy: sum
+		sourceColumn: version
+
+		annotation SummarizationSetBy = Automatic
+
+	column comments
+		dataType: string
+		lineageTag: 9563d2e3-bbee-40c1-acf5-d195e99de7d9
+		summarizeBy: none
+		sourceColumn: comments
+
+		annotation SummarizationSetBy = Automatic
+
+	partition employee = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("localhost", "postgres"),
+				    dbo_employee = Source{[Schema="dbo",Item="employee"]}[Data]
+				in
+				    dbo_employee
+
+	annotation PBI_ResultType = Table
+
